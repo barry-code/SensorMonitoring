@@ -1,0 +1,38 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{948089B9-F483-428D-B712-E9E061F91C88}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{2F8C8B96-0BF7-4E98-9F1C-E0B9BED8934D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{59EC6799-F16C-4C0A-BC93-C996E03E16CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{A83D3FFD-050A-459F-95EF-3FF7CCC8E84D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{59EC6799-F16C-4C0A-BC93-C996E03E16CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59EC6799-F16C-4C0A-BC93-C996E03E16CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59EC6799-F16C-4C0A-BC93-C996E03E16CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59EC6799-F16C-4C0A-BC93-C996E03E16CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A83D3FFD-050A-459F-95EF-3FF7CCC8E84D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A83D3FFD-050A-459F-95EF-3FF7CCC8E84D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A83D3FFD-050A-459F-95EF-3FF7CCC8E84D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A83D3FFD-050A-459F-95EF-3FF7CCC8E84D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{59EC6799-F16C-4C0A-BC93-C996E03E16CC} = {948089B9-F483-428D-B712-E9E061F91C88}
+		{A83D3FFD-050A-459F-95EF-3FF7CCC8E84D} = {948089B9-F483-428D-B712-E9E061F91C88}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5741152C-871C-4E3F-A623-19CF6206563C}
+	EndGlobalSection
+EndGlobal
