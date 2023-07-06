@@ -24,13 +24,13 @@ internal class SensorRepository : ISensorRepository
         return Result.Ok();
     }
 
-    public Result DeleteSensor(Sensor sensor)
+    public Result DeleteSensor(Guid sensorId)
     {
-        var existingSensor = _sensors.FirstOrDefault(s => s.Id == sensor.Id);
+        var existingSensor = _sensors.FirstOrDefault(s => s.Id == sensorId);
 
         if (existingSensor is null)
         {
-            return Result.Fail(new SensorNotFoundError(sensor.Id));
+            return Result.Fail(new SensorNotFoundError(sensorId));
         }
 
         _sensors.Remove(existingSensor);
@@ -70,9 +70,16 @@ internal class SensorRepository : ISensorRepository
     }
 
 
-    public Result AddSensorReading(Sensor sensor, SensorReading reading)
+    public Result AddSensorReading(SensorReading reading)
     {
-        var lastReadingResult = GetLastNSensorReadingsForSensor(sensor, 1);
+        var sensor = _sensors.FirstOrDefault(s => s.Id.Equals(reading.SensorId));
+
+        if (sensor is null)
+        {
+            return Result.Fail(new SensorNotFoundError(reading.SensorId));
+        }
+
+        var lastReadingResult = GetLastNSensorReadingsForSensor(reading.SensorId, 1);
 
         if (lastReadingResult.IsFailed)
         {
@@ -95,14 +102,14 @@ internal class SensorRepository : ISensorRepository
         return Result.Ok();
     }
 
-    public Result<IEnumerable<SensorReading>> GetAllSensorReadingsForSensor(Sensor sensor)
+    public Result<IEnumerable<SensorReading>> GetAllSensorReadingsForSensor(Guid sensorId)
     {
-        return _sensorReadings.Where(s => s.SensorId.Equals(sensor.Id)).ToArray();
+        return _sensorReadings.Where(s => s.SensorId.Equals(sensorId)).ToArray();
     }
 
-    public Result<IEnumerable<SensorReading>> GetLastNSensorReadingsForSensor(Sensor sensor, int count)
+    public Result<IEnumerable<SensorReading>> GetLastNSensorReadingsForSensor(Guid sensorId, int count)
     {
-        return Result.Ok(_sensorReadings.OrderByDescending(s => s.DateTime).Take(count));
+        return Result.Ok(_sensorReadings.Where(s => s.SensorId == sensorId).OrderByDescending(s => s.DateTime).Take(count));
     }
     
     public Result<IEnumerable<SensorReading>> GetLastNSensorReadingsForAllSensors(int count)

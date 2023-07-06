@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace Shared.Models;
+﻿namespace Shared.Models;
 public class Sensor
 {
     public Guid Id { get; }
