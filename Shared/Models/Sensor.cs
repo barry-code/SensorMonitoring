@@ -1,11 +1,11 @@
-﻿namespace Shared.Models;
+﻿namespace SensorMonitoring.Shared.Models;
 public class Sensor
 {
     public Guid Id { get; }
     public string Name { get; private set; }
     public IPAddress IpAddress { get; private set; }
     public string Description { get; private set; }
-    public float Delta { get; private set; }    
+    public float Delta { get; private set; }
 
     private Sensor(string name, string description, IPAddress ipAddress, float delta)
     {

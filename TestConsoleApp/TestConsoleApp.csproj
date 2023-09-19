@@ -5,6 +5,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>SensorMonitoring.TestConsoleApp</AssemblyName>
+    <RootNamespace>SensorMonitoring.TestConsoleApp</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

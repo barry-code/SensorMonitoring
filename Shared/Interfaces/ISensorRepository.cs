@@ -1,4 +1,4 @@
-﻿namespace Shared.Interfaces;
+﻿namespace SensorMonitoring.Shared.Interfaces;
 public interface ISensorRepository
 {
     Result AddSensor(Sensor sensor);

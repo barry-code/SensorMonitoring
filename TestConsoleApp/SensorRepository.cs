@@ -1,10 +1,10 @@
 ﻿using FluentResults;
-using Shared.Errors;
-using Shared.Interfaces;
-using Shared.Models;
+using SensorMonitoring.Shared.Errors;
+using SensorMonitoring.Shared.Interfaces;
+using SensorMonitoring.Shared.Models;
 using System.Linq;
 
-namespace TestConsoleApp;
+namespace SensorMonitoring.TestConsoleApp;
 internal class SensorRepository : ISensorRepository
 {
     private List<Sensor> _sensors = new();
