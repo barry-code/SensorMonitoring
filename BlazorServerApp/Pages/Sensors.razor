@@ -1,0 +1,34 @@
+﻿@page "/sensors"
+@using SensorMonitoring.BlazorServerApp.Data
+@inject SensorService MySensorService
+<h3>Sensors</h3>
+
+<div class="table table-primary table-striped">
+    @if (SensorList.Count == 0)
+    {
+        <p>No sensors found</p>
+    }
+    else
+    {
+        @foreach (var sensor in SensorList)
+        {
+            <p>@sensor.Name</p>
+            <p>@sensor.Id</p>
+            <p>@sensor.IpAddress</p>
+        }
+    }
+    
+</div>
+
+@code {
+    public List<Sensor> SensorList { get; set; } = new List<Sensor>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var res = await MySensorService.GetSensors();
+
+        SensorList.AddRange(res);
+
+        await base.OnInitializedAsync();
+    }
+}

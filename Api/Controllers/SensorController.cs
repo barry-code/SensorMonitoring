@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SensorMonitoring.Shared.Interfaces;
+using SensorMonitoring.Shared.Models;
 
 namespace SensorMonitoring.Api.Controllers;
 
@@ -14,9 +15,26 @@ public class SensorController : ControllerBase
         _sensorRepository = sensorRepository;
     }
 
-    [HttpGet(Name = "GetSensors")]
-    public List<string> Get()
+    [HttpGet(Name = "Sensors")]
+    public IActionResult ListAllSensors()
     {
-        return new List<string> { "123", "234", "345" };
+        var sensors = _sensorRepository.GetAllSensors();
+
+        if (sensors is null)
+        {
+            return NoContent();
+        }
+
+        return Ok(sensors);
+    }
+
+    [HttpPost(Name ="AddSensor")]
+    public IActionResult AddSensor([FromForm] string name, [FromForm] string description, [FromForm] string ipAddress, [FromForm] float delta)
+    {
+        var sensor = new Sensor(name, description, ipAddress, delta);
+
+        _sensorRepository.AddSensor(sensor);
+
+        return Ok();
     }
 }

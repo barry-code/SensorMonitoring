@@ -16,7 +16,7 @@ internal class SensorRepository : ISensorRepository
 
         if (existingSensor is not null)
         {
-            return Result.Fail(new SensorAlreadyExistsError(sensor.Name));
+            return Result.Fail(new SensorAlreadyExistsException(sensor.Name));
         }
 
         _sensors.Add(sensor);
@@ -30,7 +30,7 @@ internal class SensorRepository : ISensorRepository
 
         if (existingSensor is null)
         {
-            return Result.Fail(new SensorNotFoundError(sensorId));
+            return Result.Fail(new SensorNotFoundException(sensorId));
         }
 
         _sensors.Remove(existingSensor);
@@ -44,7 +44,7 @@ internal class SensorRepository : ISensorRepository
 
         if (existingSensor is null)
         {
-            return Result.Fail(new SensorNotFoundError(sensor.Id));
+            return Result.Fail(new SensorNotFoundException(sensor.Id));
         }
 
         existingSensor.Update(sensor.Name, sensor.Description, sensor.IpAddress, sensor.Delta);
@@ -63,7 +63,7 @@ internal class SensorRepository : ISensorRepository
 
         if (sensor is null)
         {
-            return Result.Fail(new SensorNotFoundError(sensorId));
+            return Result.Fail(new SensorNotFoundException(sensorId));
         }
 
         return sensor;
@@ -76,7 +76,7 @@ internal class SensorRepository : ISensorRepository
 
         if (sensor is null)
         {
-            return Result.Fail(new SensorNotFoundError(reading.SensorId));
+            return Result.Fail(new SensorNotFoundException(reading.SensorId));
         }
 
         var lastReadingResult = GetLastNSensorReadingsForSensor(reading.SensorId, 1);
