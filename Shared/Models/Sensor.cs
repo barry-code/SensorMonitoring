@@ -1,7 +1,7 @@
 ﻿namespace SensorMonitoring.Shared.Models;
 public class Sensor
 {
-    public Guid Id { get; }
+    public int Id { get; }
     public string Name { get; private set; }
     public string IpAddress { get; private set; }
     public string Description { get; private set; }
@@ -11,7 +11,7 @@ public class Sensor
     {
         PerformValidationChecks(name, description, ipAddress, delta);
 
-        Id = Guid.NewGuid();
+        Id = -1;
         Name = name;
         Description = description;
         IpAddress = ipAddress;

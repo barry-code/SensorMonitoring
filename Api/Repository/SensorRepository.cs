@@ -50,7 +50,7 @@ public class SensorRepository : ISensorRepository
         _context.SaveChanges();
     }
 
-    public void DeleteSensor(Guid sensorId)
+    public void DeleteSensor(int sensorId)
     {
         var existingSensor = _context.Sensors.FirstOrDefault(s => s.Id == sensorId);
 
@@ -63,7 +63,7 @@ public class SensorRepository : ISensorRepository
         _context.SaveChanges();
     }
 
-    public IEnumerable<SensorReading> GetAllSensorReadingsForSensor(Guid sensorId)
+    public IEnumerable<SensorReading> GetAllSensorReadingsForSensor(int sensorId)
     {
         return _context.SensorReadings
             .Where(s => s.SensorId.Equals(sensorId))
@@ -90,7 +90,7 @@ public class SensorRepository : ISensorRepository
         return sensorReadings;
     }
 
-    public IEnumerable<SensorReading> GetLastNSensorReadingsForSensor(Guid sensorId, int count)
+    public IEnumerable<SensorReading> GetLastNSensorReadingsForSensor(int sensorId, int count)
     {
         return _context.SensorReadings
             .Where(s => s.SensorId == sensorId)
@@ -99,7 +99,7 @@ public class SensorRepository : ISensorRepository
             .Take(count);
     }
 
-    public Sensor GetSensorById(Guid sensorId)
+    public Sensor GetSensorById(int sensorId)
     {
         var sensor = _context.Sensors.FirstOrDefault(s => s.Id.Equals(sensorId));
 

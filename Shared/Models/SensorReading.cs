@@ -1,16 +1,16 @@
 ﻿namespace SensorMonitoring.Shared.Models;
 public class SensorReading
 {
-    public Guid Id { get; private set; }
-    public Guid SensorId { get; private set; }
+    public int Id { get; private set; }
+    public int SensorId { get; private set; }
     public float Value { get; private set; }
     public DateTimeOffset DateTime { get; private set; }
 
     public Sensor? Sensor { get; set; }
 
-    public SensorReading(Guid sensorId, float value)
+    public SensorReading(int sensorId, float value)
     {
-        Id = Guid.NewGuid();
+        Id = -1;
         SensorId = sensorId;
         DateTime = DateTimeOffset.Now;
         Value = value;

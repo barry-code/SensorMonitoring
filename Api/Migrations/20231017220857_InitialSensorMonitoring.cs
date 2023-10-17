@@ -1,11 +1,10 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace SensorMonitoring.Api.Migrations
 {
-    public partial class InitialSetup : Migration
+    public partial class InitialSensorMonitoring : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +12,8 @@ namespace SensorMonitoring.Api.Migrations
                 name: "Sensors",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     IpAddress = table.Column<string>(type: "TEXT", nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: false),
@@ -28,8 +28,9 @@ namespace SensorMonitoring.Api.Migrations
                 name: "SensorReadings",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SensorId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    SensorId = table.Column<int>(type: "INTEGER", nullable: false),
                     Value = table.Column<float>(type: "REAL", nullable: false),
                     DateTime = table.Column<long>(type: "INTEGER", nullable: false)
                 },
