@@ -2,33 +2,55 @@
 @using SensorMonitoring.BlazorServerApp.Data
 @inject SensorService MySensorService
 <h3>Sensors</h3>
-
-<div class="table table-primary table-striped">
-    @if (SensorList.Count == 0)
+<div class="container-fluid">
+    @if (IsLoading)
     {
-        <p>No sensors found</p>
-    }
+        <button class="btn btn-dark" type="button" disabled>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Loading...
+        </button>
+    }    
     else
-    {
-        @foreach (var sensor in SensorList)
-        {
-            <p>@sensor.Name</p>
-            <p>@sensor.Id</p>
-            <p>@sensor.IpAddress</p>
-        }
+    {   
+        <RadzenDataGrid TItem="Sensor" Data="@SensorList">
+            <EmptyTemplate>
+                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">No sensors to display.</p>
+            </EmptyTemplate>
+            <Columns>
+                <RadzenDataGridColumn TItem="Sensor" Property="Name" Title="Name" />
+                <RadzenDataGridColumn TItem="Sensor" Property="Description" Title="Description" />
+                <RadzenDataGridColumn TItem="Sensor" Property="IpAddress" Title="IpAddress" />
+                <RadzenDataGridColumn TItem="Sensor" Property="Delta" Title="Delta" />
+                <RadzenDataGridColumn TItem="Sensor" Property="Id" Title="Id" />
+            </Columns>
+
+        </RadzenDataGrid>
     }
-    
 </div>
+
 
 @code {
     public List<Sensor> SensorList { get; set; } = new List<Sensor>();
+    public bool IsLoading { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var res = await MySensorService.GetSensors();
+        try
+        {
+            IsLoading = true;
 
-        SensorList.AddRange(res);
+            var res = await MySensorService.GetSensors();
 
-        await base.OnInitializedAsync();
+            SensorList.AddRange(res);
+
+            await base.OnInitializedAsync();
+        }
+        catch (Exception)
+        {           
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 }
