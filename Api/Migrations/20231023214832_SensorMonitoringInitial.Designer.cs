@@ -10,8 +10,8 @@ using SensorMonitoring.Api.Repository;
 namespace SensorMonitoring.Api.Migrations
 {
     [DbContext(typeof(SensorContext))]
-    [Migration("20231017220857_InitialSensorMonitoring")]
-    partial class InitialSensorMonitoring
+    [Migration("20231023214832_SensorMonitoringInitial")]
+    partial class SensorMonitoringInitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,10 +28,6 @@ namespace SensorMonitoring.Api.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("IpAddress")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

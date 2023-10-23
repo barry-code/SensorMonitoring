@@ -29,9 +29,9 @@ public class SensorController : ControllerBase
     }
 
     [HttpPost(Name ="AddSensor")]
-    public IActionResult AddSensor([FromForm] string name, [FromForm] string description, [FromForm] string ipAddress, [FromForm] float delta)
+    public IActionResult AddSensor([FromForm] string name, [FromForm] string description, [FromForm] float delta)
     {
-        var sensor = new Sensor(name, description, ipAddress, delta);
+        var sensor = new Sensor(name, description, delta);
 
         _sensorRepository.AddSensor(sensor);
 

@@ -4,7 +4,7 @@
 
 namespace SensorMonitoring.Api.Migrations
 {
-    public partial class InitialSensorMonitoring : Migration
+    public partial class SensorMonitoringInitial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,7 +15,6 @@ namespace SensorMonitoring.Api.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    IpAddress = table.Column<string>(type: "TEXT", nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: false),
                     Delta = table.Column<float>(type: "REAL", nullable: false)
                 },

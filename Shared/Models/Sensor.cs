@@ -3,32 +3,29 @@ public class Sensor
 {
     public int Id { get; }
     public string Name { get; private set; }
-    public string IpAddress { get; private set; }
     public string Description { get; private set; }
     public float Delta { get; private set; }
 
-    public Sensor(string name, string description, string ipAddress, float delta)
+    public Sensor(string name, string description, float delta)
     {
-        PerformValidationChecks(name, description, ipAddress, delta);
+        PerformValidationChecks(name, description, delta);
 
         Id = -1;
         Name = name;
         Description = description;
-        IpAddress = ipAddress;
         Delta = delta;
     }
 
-    public void Update(string name, string description, string ipAddress, float delta)
+    public void Update(string name, string description,float delta)
     {
-        PerformValidationChecks(name, description, ipAddress, delta);
+        PerformValidationChecks(name, description, delta);
         
         Name = name;
         Description = description;
-        IpAddress = ipAddress;
         Delta = delta;
     }
 
-    private void PerformValidationChecks(string name, string description, string ipAddress, float delta)
+    private void PerformValidationChecks(string name, string description, float delta)
     {   
         IsValidName(name);
         IsValidDelta(delta);

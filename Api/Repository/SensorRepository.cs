@@ -120,7 +120,7 @@ public class SensorRepository : ISensorRepository
             throw new SensorNotFoundException(sensor.Id);
         }
 
-        existingSensor.Update(sensor.Name, sensor.Description, sensor.IpAddress, sensor.Delta);
+        existingSensor.Update(sensor.Name, sensor.Description, sensor.Delta);
         _context.SaveChanges();
     }
 }
