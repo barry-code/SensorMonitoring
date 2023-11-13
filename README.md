@@ -28,6 +28,6 @@ Then ran it (had to pass connection string)
 Migrations showed as being generated.
 
 Was then able to run api, passing url so that it ran as ip address instead of localhost, and could be access remotely.
-dotnet SensorMonitoring.Api.dll --urls "http://rpiIpAddress:port"
+>dotnet SensorMonitoring.Api.dll --urls "http://rpiIpAddress:port"
 
 Also had firewall off on pc when testing, would need to ensure rule added for port.
