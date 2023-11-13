@@ -5,23 +5,20 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Net;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.Extensions.Options;
 
 namespace SensorMonitoring.Api.Repository;
 
 public class SensorContext : DbContext
 {
-    private readonly string _dbName = "SensorMonitoring.db";
-
     public DbSet<Sensor> Sensors { get; set; }
     public DbSet<SensorReading> SensorReadings { get; set; }
 
     public string DbPath { get; }
 
-    public SensorContext()
+    public SensorContext(IOptions<ApiOptions> options)
     {
-        var folder = Environment.SpecialFolder.LocalApplicationData;
-        var path = Environment.GetFolderPath(folder);
-        DbPath = Path.Join(path, _dbName);
+        DbPath = options.Value.SensorRepositoryConnection;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options) =>

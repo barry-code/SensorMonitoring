@@ -1,6 +1,7 @@
 using SensorMonitoring.BlazorServerApp.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using SensorMonitoring.BlazorServerApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<SensorService>();
+builder.Services.Configure<ServerAppOptions>(
+    builder.Configuration.GetSection(nameof(ServerAppOptions).ToString()));
 
 var app = builder.Build();
 

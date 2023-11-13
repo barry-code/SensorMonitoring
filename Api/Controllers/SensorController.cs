@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SensorMonitoring.Shared.DTO;
 using SensorMonitoring.Shared.Interfaces;
 using SensorMonitoring.Shared.Models;
 
@@ -28,12 +29,35 @@ public class SensorController : ControllerBase
         return Ok(sensors);
     }
 
-    [HttpPost(Name ="AddSensor")]
+    [Route("AddSensor")]
+    [HttpPost()]
     public IActionResult AddSensor([FromForm] string name, [FromForm] string description, [FromForm] float delta)
     {
         var sensor = new Sensor(name, description, delta);
 
         _sensorRepository.AddSensor(sensor);
+
+        return Ok();
+    }
+
+    [Route("AddSensorReading")]
+    [HttpPost()]
+    public IActionResult AddSensorReading([FromBody] SensorReadingDTO sensorReading)
+    {
+        var sensorReadingValue = new SensorReading(sensorReading.SensorId, sensorReading.Reading);
+
+        _sensorRepository.AddSensorReading(sensorReadingValue);
+
+        return Ok();
+    }
+
+    [Route("AddSensorReadings")]
+    [HttpPost()]
+    public IActionResult AddSensorReadings([FromBody] List<SensorReadingDTO> sensorReadings)
+    {
+        var readings = sensorReadings.Select(s => new SensorReading(s.SensorId, s.Reading)).ToList();
+
+        _sensorRepository.AddSensorReadings(readings);
 
         return Ok();
     }

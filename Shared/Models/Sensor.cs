@@ -10,7 +10,6 @@ public class Sensor
     {
         PerformValidationChecks(name, description, delta);
 
-        Id = -1;
         Name = name;
         Description = description;
         Delta = delta;

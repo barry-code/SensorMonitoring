@@ -8,6 +8,7 @@ public interface ISensorRepository
     Sensor GetSensorById(int sensorId);
 
     void AddSensorReading(SensorReading reading);
+    void AddSensorReadings(List<SensorReading> readings);
     IEnumerable<SensorReading> GetAllSensorReadingsForSensor(int sensorId);
     IEnumerable<SensorReading> GetLastNSensorReadingsForSensor(int sensorId, int count);
     IEnumerable<SensorReading> GetLastNSensorReadingsForAllSensors(int count);

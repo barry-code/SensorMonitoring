@@ -1,4 +1,5 @@
-﻿using SensorMonitoring.Shared.Errors;
+﻿using Microsoft.Extensions.Options;
+using SensorMonitoring.Shared.Errors;
 using SensorMonitoring.Shared.Interfaces;
 using SensorMonitoring.Shared.Models;
 
@@ -7,9 +8,9 @@ public class SensorRepository : ISensorRepository
 {
     private SensorContext _context;
     
-    public SensorRepository()
+    public SensorRepository(IOptions<ApiOptions> options)
     {
-        _context = new SensorContext();
+        _context = new SensorContext(options);
     }
 
     public void AddSensor(Sensor sensor)
@@ -48,6 +49,14 @@ public class SensorRepository : ISensorRepository
 
         _context.SensorReadings.Add(reading);
         _context.SaveChanges();
+    }
+
+    public void AddSensorReadings(List<SensorReading> readings)
+    {
+        foreach (var item in readings)
+        {
+            AddSensorReading(item);
+        }        
     }
 
     public void DeleteSensor(int sensorId)

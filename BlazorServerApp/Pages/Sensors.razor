@@ -1,5 +1,6 @@
 ﻿@page "/sensors"
 @using SensorMonitoring.BlazorServerApp.Data
+@using SensorMonitoring.Shared.DTO
 @inject SensorService MySensorService
 <h3>Sensors</h3>
 <div class="container-fluid">
@@ -11,26 +12,40 @@
         </button>
     }    
     else
-    {   
-        <RadzenDataGrid TItem="Sensor" Data="@SensorList">
-            <EmptyTemplate>
-                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">No sensors to display.</p>
-            </EmptyTemplate>
-            <Columns>
-                <RadzenDataGridColumn TItem="Sensor" Property="Name" Title="Name" />
-                <RadzenDataGridColumn TItem="Sensor" Property="Description" Title="Description" />
-                <RadzenDataGridColumn TItem="Sensor" Property="Delta" Title="Delta" />
-                <RadzenDataGridColumn TItem="Sensor" Property="Id" Title="Id" />
-            </Columns>
+    {
+        if (AddNewSensor)
+        {
+            <div>
+            
+            </div>
+            <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Text="Cancel" Click="ToggleAddSensorMode"></RadzenButton>
+            <RadzenButton ButtonStyle="Radzen.ButtonStyle.Success" Text="Save" Click="SaveNewSensor"></RadzenButton>
+        }
+        else
+        {
+            <RadzenDataGrid TItem="SensorDTO" Data="@SensorList">
+                <EmptyTemplate>
+                    <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">No sensors to display.</p>
+                </EmptyTemplate>
+                <Columns>
+                    <RadzenDataGridColumn TItem="SensorDTO" Property="Name" Title="Name" />
+                    <RadzenDataGridColumn TItem="SensorDTO" Property="Description" Title="Description" />
+                    <RadzenDataGridColumn TItem="SensorDTO" Property="Delta" Title="Delta" />
+                    <RadzenDataGridColumn TItem="SensorDTO" Property="Id" Title="Id" />
+                </Columns>
 
-        </RadzenDataGrid>
+            </RadzenDataGrid>
+            <RadzenButton Text="Add New Sensor" ButtonStyle="Radzen.ButtonStyle.Success" Icon="add_circle_outline" Click="ToggleAddSensorMode"></RadzenButton>
+        }
+        
     }
 </div>
 
 
 @code {
-    public List<Sensor> SensorList { get; set; } = new List<Sensor>();
+    public List<SensorDTO> SensorList { get; set; } = new List<SensorDTO>();
     public bool IsLoading { get; set; }
+    public bool AddNewSensor { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,5 +66,15 @@
         {
             IsLoading = false;
         }
+    }
+
+    protected void ToggleAddSensorMode()
+    {
+        AddNewSensor = !AddNewSensor;
+    }
+
+    protected async Task SaveNewSensor()
+    {
+        await MySensorService.AddSensor();
     }
 }

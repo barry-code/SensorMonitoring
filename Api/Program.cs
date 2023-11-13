@@ -1,3 +1,4 @@
+using SensorMonitoring.Api;
 using SensorMonitoring.Api.Repository;
 using SensorMonitoring.Shared.Interfaces;
 
@@ -12,6 +13,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<ISensorRepository, SensorRepository>();
 
+builder.Services.Configure<ApiOptions>(
+    builder.Configuration.GetSection(nameof(ApiOptions).ToString()));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -21,7 +25,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
