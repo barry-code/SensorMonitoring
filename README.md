@@ -2,6 +2,11 @@
 
 Notes when deploying to raspberry pi:
 
+[Microsoft Arm Deploy Tutorial](https://learn.microsoft.com/en-us/dotnet/iot/deployment#deploying-a-framework-dependent-app)
+
+[Applying Migrations Tutorial](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying?tabs=dotnet-core-cli)
+
+
 Replace myUsername with the account name on pi, and myHostname with the hostname of pi, and myHomePath with actual path on rpi. Replace ip and ports with correct ones.
 
 
