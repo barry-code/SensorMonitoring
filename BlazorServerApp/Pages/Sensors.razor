@@ -1,6 +1,5 @@
 ﻿@page "/sensors"
-@using SensorMonitoring.BlazorServerApp.Data
-@using SensorMonitoring.Shared.DTO
+
 @inject SensorService MySensorService
 <h3>Sensors</h3>
 <div class="container-fluid">
@@ -36,11 +35,9 @@
 
             </RadzenDataGrid>
             <RadzenButton Text="Add New Sensor" ButtonStyle="Radzen.ButtonStyle.Success" Icon="add_circle_outline" Click="ToggleAddSensorMode"></RadzenButton>
-        }
-        
+        }        
     }
 </div>
-
 
 @code {
     public List<SensorDTO> SensorList { get; set; } = new List<SensorDTO>();
@@ -60,7 +57,8 @@
             await base.OnInitializedAsync();
         }
         catch (Exception)
-        {           
+        {
+            throw;
         }
         finally
         {

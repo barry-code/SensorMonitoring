@@ -1,0 +1,69 @@
+﻿@page "/sensorReadingSummary"
+@using System.Collections.ObjectModel
+
+
+@inject SensorService MySensorService
+
+<h3>SensorReadingSummary</h3>
+
+<div class="container-fluid">
+    @if (IsLoading)
+    {
+        <button class="btn btn-dark" type="button" disabled>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Loading...
+        </button>
+    }
+    else{
+        <RadzenDataGrid TItem="SensorSummary" Data="@Readings">
+            <EmptyTemplate>
+                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">No sensors to display.</p>
+            </EmptyTemplate>
+            <Columns>
+                <RadzenDataGridColumn TItem="SensorSummary" Property="Sensor.Name" Title="Name" />
+                <RadzenDataGridColumn TItem="SensorSummary" Property="LastReading" Title="Last Reading" />
+                <RadzenDataGridColumn TItem="SensorSummary" Property="LastReadingTime" Title="Last Reading Time" />
+                <RadzenDataGridColumn TItem="SensorSummary" Property="IsCommsLost" Title="Comms Issue" />
+            </Columns>
+
+        </RadzenDataGrid>
+    }
+</div>
+
+@code {
+    private bool isFirstLoad;
+    public bool IsLoading { get; set; }
+    public ObservableCollection<SensorSummary> Readings { get; set; } = new ObservableCollection<SensorSummary>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        isFirstLoad = firstRender;
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            IsLoading = true;
+
+            var res = await MySensorService.GetSensorReadingSummary();
+
+            foreach (var item in res)
+            {
+                Readings.Add(item);
+            }
+
+            await base.OnInitializedAsync();
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}

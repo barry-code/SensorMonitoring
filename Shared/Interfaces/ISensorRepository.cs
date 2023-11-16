@@ -1,6 +1,12 @@
-﻿namespace SensorMonitoring.Shared.Interfaces;
+﻿using SensorMonitoring.Shared.Events;
+
+namespace SensorMonitoring.Shared.Interfaces;
 public interface ISensorRepository
-{
+{   
+    event Action<Sensor> SensorAddedEvent;
+    event Action<Sensor> SensorUpdatedEvent;
+    event Action<SensorReading> SensorReadingAddedEvent;
+
     void AddSensor(Sensor sensor);
     void DeleteSensor(int sensorId);
     void UpdateSensor(Sensor sensor);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using SensorMonitoring.Shared.Errors;
+using SensorMonitoring.Shared.Events;
 using SensorMonitoring.Shared.Interfaces;
 using SensorMonitoring.Shared.Models;
 
@@ -7,7 +8,11 @@ namespace SensorMonitoring.Api.Repository;
 public class SensorRepository : ISensorRepository
 {
     private SensorContext _context;
-    
+
+    public event Action<Sensor> SensorAddedEvent;
+    public event Action<Sensor> SensorUpdatedEvent;
+    public event Action<SensorReading> SensorReadingAddedEvent;
+
     public SensorRepository(IOptions<ApiOptions> options)
     {
         _context = new SensorContext(options);
@@ -24,6 +29,7 @@ public class SensorRepository : ISensorRepository
 
         _context.Sensors.Add(sensor);
         _context.SaveChanges();
+        SensorAddedEvent?.Invoke(sensor);
     }
 
     public void AddSensorReading(SensorReading reading)
@@ -39,16 +45,14 @@ public class SensorRepository : ISensorRepository
 
         if (lastReading is null)
         {
-            _context.SensorReadings.Add(reading);
-            _context.SaveChanges();
+            SaveSensorReading(_context, reading);
             return;
         }
 
         if (Math.Abs((float)lastReading.Value - reading.Value) < sensor.Delta)
             return;
 
-        _context.SensorReadings.Add(reading);
-        _context.SaveChanges();
+        SaveSensorReading(_context, reading);
     }
 
     public void AddSensorReadings(List<SensorReading> readings)
@@ -131,5 +135,13 @@ public class SensorRepository : ISensorRepository
 
         existingSensor.Update(sensor.Name, sensor.Description, sensor.Delta);
         _context.SaveChanges();
+        SensorUpdatedEvent?.Invoke(sensor);
+    }
+
+    private void SaveSensorReading(SensorContext context, SensorReading reading) 
+    {
+        context.SensorReadings.Add(reading);
+        context.SaveChanges();
+        SensorReadingAddedEvent?.Invoke(reading);
     }
 }
