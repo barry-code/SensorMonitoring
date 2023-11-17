@@ -5,7 +5,7 @@ public interface ISensorRepository
 {   
     event Action<Sensor> SensorAddedEvent;
     event Action<Sensor> SensorUpdatedEvent;
-    event Action<SensorReading> SensorReadingAddedEvent;
+    event Action<List<SensorReading>> SensorReadingsAddedEvent;
 
     void AddSensor(Sensor sensor);
     void DeleteSensor(int sensorId);

@@ -11,7 +11,7 @@ public class SensorRepository : ISensorRepository
 
     public event Action<Sensor> SensorAddedEvent;
     public event Action<Sensor> SensorUpdatedEvent;
-    public event Action<SensorReading> SensorReadingAddedEvent;
+    public event Action<List<SensorReading>> SensorReadingsAddedEvent;
 
     public SensorRepository(IOptions<ApiOptions> options)
     {
@@ -34,33 +34,16 @@ public class SensorRepository : ISensorRepository
 
     public void AddSensorReading(SensorReading reading)
     {
-        var sensor = _context.Sensors.FirstOrDefault(s => s.Id.Equals(reading.SensorId));
+        var readingsToAdd = GetValidReadingsToAdd(new List<SensorReading>() { reading });
 
-        if (sensor is null)
-        {
-            throw new SensorNotFoundException(reading.SensorId);
-        }
-
-        var lastReading = GetLastNSensorReadingsForSensor(reading.SensorId, 1)?.FirstOrDefault();
-
-        if (lastReading is null)
-        {
-            SaveSensorReading(_context, reading);
-            return;
-        }
-
-        if (Math.Abs((float)lastReading.Value - reading.Value) < sensor.Delta)
-            return;
-
-        SaveSensorReading(_context, reading);
+        SaveSensorReadings(readingsToAdd);
     }
 
     public void AddSensorReadings(List<SensorReading> readings)
     {
-        foreach (var item in readings)
-        {
-            AddSensorReading(item);
-        }        
+        var readingsToAdd = GetValidReadingsToAdd(readings);
+
+        SaveSensorReadings(readingsToAdd);
     }
 
     public void DeleteSensor(int sensorId)
@@ -138,10 +121,45 @@ public class SensorRepository : ISensorRepository
         SensorUpdatedEvent?.Invoke(sensor);
     }
 
-    private void SaveSensorReading(SensorContext context, SensorReading reading) 
+    private void SaveSensorReadings(List<SensorReading> readings)
     {
-        context.SensorReadings.Add(reading);
-        context.SaveChanges();
-        SensorReadingAddedEvent?.Invoke(reading);
+        if (readings.Count == 0)
+            return;
+
+        _context.SensorReadings.AddRange(readings);
+        _context.SaveChanges();
+        SensorReadingsAddedEvent?.Invoke(readings);
+    }
+
+    private List<SensorReading> GetValidReadingsToAdd(List<SensorReading> readings)
+    {
+        var readingsToAdd = new List<SensorReading>();
+
+        foreach (var reading in readings)
+        {
+            var sensor = _context.Sensors.FirstOrDefault(s => s.Id.Equals(reading.SensorId));
+
+            if (sensor is null)
+            {
+                throw new SensorNotFoundException(reading.SensorId);
+            }
+
+            var lastReading = GetLastNSensorReadingsForSensor(reading.SensorId, 1)?.FirstOrDefault();
+
+            if (lastReading is null)
+            {
+                readingsToAdd.Add(reading);
+            }
+            else if (Math.Abs((float)lastReading.Value - reading.Value) < sensor.Delta)
+            {
+                continue;
+            }
+            else
+            {
+                readingsToAdd.Add(reading);
+            }
+        }
+
+        return readingsToAdd;
     }
 }
