@@ -55,9 +55,9 @@ public class SensorController : ControllerBase
     [HttpPost()]
     public IActionResult AddSensorReadings([FromBody] List<SensorReadingDTO> sensorReadings)
     {
-        var readings = sensorReadings.Select(s => new SensorReading(s.SensorId, s.Reading)).ToList();
+        var sensorReadingValues = sensorReadings.Select(s => new SensorReading(s.SensorId, s.Reading)).ToList();
 
-        _sensorRepository.AddSensorReadings(readings);
+        _sensorRepository.AddSensorReadings(sensorReadingValues);
 
         return Ok();
     }
