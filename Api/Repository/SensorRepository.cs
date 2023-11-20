@@ -73,17 +73,19 @@ public class SensorRepository : ISensorRepository
 
     public IEnumerable<SensorReading> GetLastNSensorReadingsForAllSensors(int count)
     {
-        var sensorReadings = new List<SensorReading>();
+        var allSensorReadings = new List<SensorReading>();
 
         foreach (var sensor in _context.Sensors)
         {
-            sensorReadings
-                .AddRange(_context.SensorReadings
+            var thisSensorReading = _context.SensorReadings
+                .Where(s => s.SensorId == sensor.Id)
                 .OrderByDescending(sr => sr.DateTime)
-                .Take(count));
+                .Take(count);
+
+            allSensorReadings.AddRange(thisSensorReading);
         }
 
-        return sensorReadings;
+        return allSensorReadings;
     }
 
     public IEnumerable<SensorReading> GetLastNSensorReadingsForSensor(int sensorId, int count)
@@ -146,20 +148,19 @@ public class SensorRepository : ISensorRepository
 
             var lastReading = GetLastNSensorReadingsForSensor(reading.SensorId, 1)?.FirstOrDefault();
 
-            if (lastReading is null)
-            {
-                readingsToAdd.Add(reading);
-            }
-            else if (Math.Abs((float)lastReading.Value - reading.Value) < sensor.Delta)
+            if (lastReading is not null && IsNewValueWithinDelta(reading.Value, (float)lastReading.Value, sensor.Delta))
             {
                 continue;
             }
-            else
-            {
-                readingsToAdd.Add(reading);
-            }
+
+            readingsToAdd.Add(reading);
         }
 
         return readingsToAdd;
+    }
+
+    private bool IsNewValueWithinDelta(float newReading, float lastReading, float delta)
+    {
+        return Math.Abs(lastReading - newReading) < delta;
     }
 }

@@ -79,7 +79,7 @@ public class SensorService
 
         using (var client = new HttpClient())
         {
-            var response = await client.GetAsync($"{baseUri}/LastNSensorReadings");
+            var response = await client.GetAsync($"{baseUri}/LastNSensorReadings/1");
 
             if (response.IsSuccessStatusCode)
             {

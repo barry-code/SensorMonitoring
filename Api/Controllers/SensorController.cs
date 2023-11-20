@@ -62,9 +62,9 @@ public class SensorController : ControllerBase
         return Ok();
     }
 
-    [Route("LastNSensorReadings")]
+    [Route("LastNSensorReadings/{count}")]
     [HttpGet()]
-    public IActionResult GetLastNSensorReadings(int count)
+    public IActionResult GetLastNSensorReadings([FromRoute]int count = 1)
     {
         var readings = _sensorRepository.GetLastNSensorReadingsForAllSensors(count);
 
