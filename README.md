@@ -32,6 +32,7 @@ Was then able to run api, passing url so that it ran as ip address instead of lo
 
 Also had firewall off on pc when testing, would need to ensure rule added for port.
 
-created a service to run it using service file which is stored in /etc/systemd/system/
+Created a service to run it using service file which is stored in /etc/systemd/system/
+>systemctl status bcode.sensormonitoring.api.service
 
 
