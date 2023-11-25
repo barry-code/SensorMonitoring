@@ -31,3 +31,8 @@ Was then able to run api, passing url so that it ran as ip address instead of lo
 >dotnet SensorMonitoring.Api.dll --urls "http://rpiIpAddress:port"
 
 Also had firewall off on pc when testing, would need to ensure rule added for port.
+
+Created a service to run it using service file which is stored in /etc/systemd/system/
+>systemctl status bcode.sensormonitoring.api.service
+
+
