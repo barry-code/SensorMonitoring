@@ -1,5 +1,8 @@
 # SensorMonitoring
 
+![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/b4c06775-edb5-4b42-b825-47c1dda7a968)
+
+
 Notes when deploying to raspberry pi:
 
 [Microsoft Arm Deploy Tutorial](https://learn.microsoft.com/en-us/dotnet/iot/deployment#deploying-a-framework-dependent-app)
