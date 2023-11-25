@@ -1,10 +1,13 @@
 ﻿@page "/sensorReadingSummary"
+@page "/"
 @using System.Collections.ObjectModel
+@using Radzen;
+@using Radzen.Blazor;
 
 
 @inject SensorService MySensorService
 
-<h3>SensorReadingSummary</h3>
+<h5>Sensor Reading Summary</h5>
 
 <div class="container-fluid">
     @if (IsLoading)
@@ -20,14 +23,37 @@
                 <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">No sensors to display.</p>
             </EmptyTemplate>
             <Columns>
-                <RadzenDataGridColumn TItem="SensorSummary" Property="Sensor.Name" Title="Name" />
+                <RadzenDataGridColumn TItem="SensorSummary" Property="Sensor.Name" Title="Name">
+                    <Template>
+                        <RadzenStack Orientation="Orientation.Horizontal">
+                            <RadzenText>@context.Sensor.Name</RadzenText>
+                            @if (context.IsCommsLost)
+                            {
+                                <RadzenIcon Icon="sensors_off" IconStyle="@IconStyle.Danger" />
+                            }
+                            else
+                            {
+                                <RadzenIcon Icon="sensors" IconStyle="@IconStyle.Success" />
+                            }
+                        </RadzenStack>
+                    </Template>
+                </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="SensorSummary" Property="LastReading" Title="Last Reading" />
                 <RadzenDataGridColumn TItem="SensorSummary" Property="LastReadingTime" Title="Last Reading Time" />
-                <RadzenDataGridColumn TItem="SensorSummary" Property="IsCommsLost" Title="Comms Issue" />
             </Columns>
 
         </RadzenDataGrid>
     }
+
+    <RadzenDataList TItem="IconStyle" Data="@(Enum.GetValues<IconStyle>())" WrapItems="true" class="rz-p-12">
+        <Template Context="style">
+            <div>
+                <h5>@style.ToString()</h5>
+                <RadzenIcon Icon="dashboard" IconStyle="@style" />
+                <RadzenIcon Icon="open_with" IconStyle="@style" />
+            </div>
+        </Template>
+    </RadzenDataList>
 </div>
 
 @code {
