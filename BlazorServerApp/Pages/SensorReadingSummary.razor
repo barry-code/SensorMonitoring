@@ -4,8 +4,8 @@
 @using Radzen;
 @using Radzen.Blazor;
 
-
-@inject SensorService MySensorService
+@inject NavigationManager NavigationManager;
+@inject SensorService MySensorService;
 
 <h5>Sensor Reading Summary</h5>
 
@@ -25,7 +25,7 @@
             <Columns>
                 <RadzenDataGridColumn TItem="SensorSummary" Property="Sensor.Name" Title="Name">
                     <Template>
-                        <RadzenStack Orientation="Orientation.Horizontal">
+                        <RadzenStack Orientation="Orientation.Horizontal" onclick="@(() => NavigateToSensorHistory(context.Sensor.Id))">
                             <RadzenText>@context.Sensor.Name</RadzenText>
                             @if (context.IsCommsLost)
                             {
@@ -38,22 +38,19 @@
                         </RadzenStack>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="SensorSummary" Property="LastReading" Title="Last Reading" />
-                <RadzenDataGridColumn TItem="SensorSummary" Property="LastReadingTime" Title="Last Reading Time" />
+                <RadzenDataGridColumn TItem="SensorSummary" Property="LastReading" Title="Last Reading">
+                    <Template>
+                        <RadzenStack Orientation="Orientation.Horizontal" onclick="@(() => NavigateToSensorHistory(context.Sensor.Id))">
+                             <RadzenIcon Icon="@context.ReadingIconName" />
+                             <RadzenText>@context.LastReadingDisplay</RadzenText>
+                         </RadzenStack>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="SensorSummary" Property="LastReadingTimeDisplay" Title="Last Reading Time" />
             </Columns>
 
         </RadzenDataGrid>
     }
-
-    <RadzenDataList TItem="IconStyle" Data="@(Enum.GetValues<IconStyle>())" WrapItems="true" class="rz-p-12">
-        <Template Context="style">
-            <div>
-                <h5>@style.ToString()</h5>
-                <RadzenIcon Icon="dashboard" IconStyle="@style" />
-                <RadzenIcon Icon="open_with" IconStyle="@style" />
-            </div>
-        </Template>
-    </RadzenDataList>
 </div>
 
 @code {
@@ -91,5 +88,10 @@
         {
             IsLoading = false;
         }
+    }
+
+    private void NavigateToSensorHistory(int sensorId)
+    {
+        NavigationManager.NavigateTo($"/sensorReadingHistory/{sensorId}");
     }
 }

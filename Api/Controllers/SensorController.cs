@@ -2,6 +2,7 @@
 using SensorMonitoring.Shared.DTO;
 using SensorMonitoring.Shared.Interfaces;
 using SensorMonitoring.Shared.Models;
+using SensorMonitoring.Shared.Api;
 
 namespace SensorMonitoring.Api.Controllers;
 
@@ -67,6 +68,15 @@ public class SensorController : ControllerBase
     public IActionResult GetLastNSensorReadings([FromRoute]int count = 1)
     {
         var readings = _sensorRepository.GetLastNSensorReadingsForAllSensors(count);
+
+        return Ok(readings);
+    }
+
+    [Route("GetSensorReadingsForSensors/{from}/{to}")]
+    [HttpPost()]
+    public IActionResult GetSensorReadingsForSensors([FromBody] List<int> sensorIds, [FromRoute] DateTimeOffset from, [FromRoute] DateTimeOffset to)
+    {
+        var readings = _sensorRepository.GetSensorReadingsForSensors(sensorIds, from, to);
 
         return Ok(readings);
     }

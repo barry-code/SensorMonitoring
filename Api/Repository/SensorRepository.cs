@@ -123,6 +123,15 @@ public class SensorRepository : ISensorRepository
         SensorUpdatedEvent?.Invoke(sensor);
     }
 
+    public IEnumerable<SensorReading> GetSensorReadingsForSensors(List<int> sensorIds, DateTimeOffset from, DateTimeOffset to)
+    {
+        var readings = _context.SensorReadings
+            .Where(s => sensorIds.Contains(s.SensorId) && (s.DateTime >= from && s.DateTime <= to))
+            .ToList();
+
+        return readings ?? new List<SensorReading>();
+    }
+
     private void SaveSensorReadings(List<SensorReading> readings)
     {
         if (readings.Count == 0)

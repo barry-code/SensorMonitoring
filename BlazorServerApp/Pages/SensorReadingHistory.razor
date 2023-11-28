@@ -1,0 +1,180 @@
+﻿@page "/sensorReadingHistory"
+@page "/sensorReadingHistory/{sensorid:int}"
+@using SensorMonitoring.Shared.Api
+
+@inject SensorService MySensorService
+
+<h5>Sensor Reading History</h5>
+
+<div class="container-fluid">
+    <div class="row">
+        @if (!_collapseFilters)
+        {
+            <RadzenCard>
+                @foreach (var item in _sensorList)
+                {
+                    <RadzenCheckBox @bind-Value=@item.Display Name=@($"sensorShow{item.SensorId}")></RadzenCheckBox>
+                    <RadzenLabel Text=@item.SensorName For=@($"sensorShow{item.SensorId}") />
+                }
+                <RadzenCheckBox @bind-Value=@_smoothLines Name="smoothLines"></RadzenCheckBox>
+                <RadzenLabel Text="Smooth Lines" For="smoothLines" />
+                <RadzenCheckBox @bind-Value=@_showDataLabels Name="dataLabels"></RadzenCheckBox>
+                <RadzenLabel Text="Show Data Labels" For="dataLabels" />
+            </RadzenCard>
+        }
+
+        <RadzenCard>
+            <RadzenDropDown @bind-Value=@SelectedTimePeriod Data=@AvailableTimePeriods></RadzenDropDown>
+            <RadzenButton Text="Refresh" Click=@(async args => await RefreshSensorHistory())></RadzenButton>
+            <RadzenButton Text="Filter" Click="@(() => ToggleFilterVisibility())"></RadzenButton>
+        </RadzenCard>
+    </div>
+    <div class="row">
+        @foreach (var sensor in SensorHistories.Where(s => s.SensorTpe == SensorType.Temperature))
+        {
+            <RadzenChart>
+                <RadzenLineSeries Data="@sensor.Readings" Smooth=@_smoothLines CategoryProperty="DateTime" Title="@sensor.Sensor.Name" LineType="LineType.Dashed" ValueProperty="ReadingValue">
+                    <RadzenMarkers MarkerType="MarkerType.Circle" />
+                    <RadzenSeriesDataLabels Visible="@_showDataLabels" />
+                </RadzenLineSeries>
+                <RadzenCategoryAxis Padding="20" Formatter="@FormatTheDate" />
+                <RadzenValueAxis Formatter="@FormatFloatValue">
+                    <RadzenGridLines Visible="true" />
+                    <RadzenAxisTitle Text="Temperature (°C)" />
+                </RadzenValueAxis>
+            </RadzenChart>
+        }
+
+        @foreach (var sensor in SensorHistories.Where(s => s.SensorTpe == SensorType.Humidity))
+        {
+            <RadzenChart>
+                <RadzenLineSeries Data="@sensor.Readings" Smooth=@_smoothLines CategoryProperty="DateTime" Title="@sensor.Sensor.Name" LineType="LineType.Dashed" ValueProperty="ReadingValue">
+                    <RadzenMarkers MarkerType="MarkerType.Circle" />
+                    <RadzenSeriesDataLabels Visible="@_showDataLabels" />
+                </RadzenLineSeries>
+                <RadzenCategoryAxis Padding="20" Formatter="@FormatTheDate" />
+                <RadzenValueAxis Formatter="@FormatFloatValue">
+                    <RadzenGridLines Visible="true" />
+                    <RadzenAxisTitle Text="Humidity (%)" />
+                </RadzenValueAxis>
+            </RadzenChart>
+        }
+     </div>
+</div>
+
+@code {
+    [Parameter]
+    public int SensorId { get; set; } = 0;
+
+    private bool _collapseFilters;
+    private bool _showDataLabels;
+    private bool _smoothLines;
+    private List<DisplaySensor> _sensorList = new List<DisplaySensor>();
+
+    public IEnumerable<ReadingTimePeriod> AvailableTimePeriods { get; set; } = new List<ReadingTimePeriod>() {
+        ReadingTimePeriod.Day,
+        ReadingTimePeriod.Week,
+        ReadingTimePeriod.Month,
+        ReadingTimePeriod.Year,
+        ReadingTimePeriod.AllTime };
+
+    public ReadingTimePeriod SelectedTimePeriod = ReadingTimePeriod.Day;
+    public List<SensorHistory> SensorHistories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _sensorList.Clear();
+        SensorHistories.Clear();
+
+        var sensorsFound = await MySensorService.GetSensors();
+
+        foreach (var item in sensorsFound)
+        {
+            _sensorList.Add(new DisplaySensor() {
+                    SensorId = item.Id,
+                    SensorName = item.Name,
+                    Display = false
+            });
+        }
+
+        if (SensorId > 0)
+        {
+            _collapseFilters = true;
+
+            var sensor = _sensorList.Where(s => s.SensorId == SensorId).FirstOrDefault();
+            if (sensor is not null)
+            {
+                sensor.Display = true;
+                await RefreshSensorHistory();
+            }            
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task RefreshSensorHistory()
+    {
+        SensorHistories.Clear();
+
+        if (!_sensorList.Any(s => s.Display))
+            return;
+
+        var sensorsToCheck = _sensorList.Where(s => s.Display).Select(s => s.SensorId).ToList();
+
+        var readings = await MySensorService.GetSensorReadingHistoryForSensors(sensorsToCheck, SelectedTimePeriod);
+
+        SensorHistories.AddRange(readings);
+    }
+
+    private string FormatAsValue(object value)
+    {
+        return (Math.Round((double)value),1).ToString();
+    }
+
+    private string FormatFloatValue(object value)
+    {
+        var v = (double)value;
+        var rounded = Math.Round(v, 1);
+        var str = rounded.ToString();
+        return str;
+    }
+
+    private string FormatTheDate(object value)
+    {
+        if (value != null)
+        {
+            string returnValue;
+
+            switch (SelectedTimePeriod)
+            {
+                case ReadingTimePeriod.Day:
+                    returnValue = Convert.ToDateTime(value).ToString("HH:mm");
+                    break;
+                case ReadingTimePeriod.Week:
+                    returnValue = Convert.ToDateTime(value).ToString("ddd");
+                    break;
+                case ReadingTimePeriod.Month:
+                    returnValue = Convert.ToDateTime(value).ToString("dd");
+                    break;
+                case ReadingTimePeriod.Year:
+                default:
+                    returnValue = Convert.ToDateTime(value).ToString("MMM");
+                    break;
+            }
+
+            return returnValue;
+        }
+
+        return string.Empty;
+    }
+
+    private void ToggleFilterVisibility(){
+        _collapseFilters = !_collapseFilters;
+    }
+
+    internal class DisplaySensor{
+        public int SensorId { get; set; }
+        public string SensorName { get; set; } = string.Empty;
+        public bool Display { get; set; }
+    }
+}

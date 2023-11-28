@@ -18,4 +18,5 @@ public interface ISensorRepository
     IEnumerable<SensorReading> GetAllSensorReadingsForSensor(int sensorId);
     IEnumerable<SensorReading> GetLastNSensorReadingsForSensor(int sensorId, int count);
     IEnumerable<SensorReading> GetLastNSensorReadingsForAllSensors(int count);
+    IEnumerable<SensorReading> GetSensorReadingsForSensors(List<int> sensorIds, DateTimeOffset from, DateTimeOffset to);
 }
