@@ -13,12 +13,14 @@
             <RadzenCard>
                 @foreach (var item in _sensorList)
                 {
-                    <RadzenCheckBox @bind-Value=@item.Display Name=@($"sensorShow{item.SensorId}")></RadzenCheckBox>
-                    <RadzenLabel Text=@item.SensorName For=@($"sensorShow{item.SensorId}") />
+                    <div>
+                        <RadzenCheckBox @bind-Value=@item.Display Name=@($"sensorShow{item.SensorId}") Style="margin-left:15px"></RadzenCheckBox>
+                        <RadzenLabel Text=@item.SensorName For=@($"sensorShow{item.SensorId}") />
+                    </div>
                 }
-                <RadzenCheckBox @bind-Value=@_smoothLines Name="smoothLines"></RadzenCheckBox>
+                <RadzenCheckBox @bind-Value=@_smoothLines Name="smoothLines" Style="margin-left:15px"></RadzenCheckBox>
                 <RadzenLabel Text="Smooth Lines" For="smoothLines" />
-                <RadzenCheckBox @bind-Value=@_showDataLabels Name="dataLabels"></RadzenCheckBox>
+                <RadzenCheckBox @bind-Value=@_showDataLabels Name="dataLabels" Style="margin-left:15px"></RadzenCheckBox>
                 <RadzenLabel Text="Show Data Labels" For="dataLabels" />
             </RadzenCard>
         }
@@ -30,35 +32,44 @@
         </RadzenCard>
     </div>
     <div class="row">
-        @foreach (var sensor in SensorHistories.Where(s => s.SensorTpe == SensorType.Temperature))
+        
+        @if (SensorHistories.Any(s => s.SensorTpe == SensorType.Temperature))
         {
-            <RadzenChart>
-                <RadzenLineSeries Data="@sensor.Readings" Smooth=@_smoothLines CategoryProperty="DateTime" Title="@sensor.Sensor.Name" LineType="LineType.Dashed" ValueProperty="ReadingValue">
-                    <RadzenMarkers MarkerType="MarkerType.Circle" />
-                    <RadzenSeriesDataLabels Visible="@_showDataLabels" />
-                </RadzenLineSeries>
+            <RadzenChart ColorScheme="ColorScheme.Pastel">
+                @foreach (var sensor in SensorHistories.Where(s => s.SensorTpe == SensorType.Temperature))
+                {
+                    <RadzenLineSeries Data="@sensor.Readings" Smooth=@_smoothLines CategoryProperty="DateTime" Title="@sensor.Sensor.Name" LineType="LineType.Dashed" ValueProperty="ReadingValue">
+                        <RadzenMarkers MarkerType="MarkerType.Circle" />
+                        <RadzenSeriesDataLabels Visible="@_showDataLabels" OffsetY="-10" />
+                    </RadzenLineSeries>
+                }
                 <RadzenCategoryAxis Padding="20" Formatter="@FormatTheDate" />
                 <RadzenValueAxis Formatter="@FormatFloatValue">
                     <RadzenGridLines Visible="true" />
-                    <RadzenAxisTitle Text="Temperature (°C)" />
+                    <RadzenAxisTitle Text="Temperature" />
                 </RadzenValueAxis>
             </RadzenChart>
         }
 
-        @foreach (var sensor in SensorHistories.Where(s => s.SensorTpe == SensorType.Humidity))
+        @if (SensorHistories.Any(s => s.SensorTpe == SensorType.Humidity))
         {
-            <RadzenChart>
-                <RadzenLineSeries Data="@sensor.Readings" Smooth=@_smoothLines CategoryProperty="DateTime" Title="@sensor.Sensor.Name" LineType="LineType.Dashed" ValueProperty="ReadingValue">
-                    <RadzenMarkers MarkerType="MarkerType.Circle" />
-                    <RadzenSeriesDataLabels Visible="@_showDataLabels" />
-                </RadzenLineSeries>
+            <RadzenChart ColorScheme="ColorScheme.Pastel">
+                @foreach (var sensor in SensorHistories.Where(s => s.SensorTpe == SensorType.Humidity))
+                {
+                    <RadzenLineSeries Data="@sensor.Readings" Smooth=@_smoothLines CategoryProperty="DateTime" Title="@sensor.Sensor.Name" LineType="LineType.Dashed" ValueProperty="ReadingValue">
+                        <RadzenMarkers MarkerType="MarkerType.Circle" />
+                        <RadzenSeriesDataLabels Visible="@_showDataLabels" OffsetY="-10" />
+                    </RadzenLineSeries>
+                }                
                 <RadzenCategoryAxis Padding="20" Formatter="@FormatTheDate" />
                 <RadzenValueAxis Formatter="@FormatFloatValue">
                     <RadzenGridLines Visible="true" />
-                    <RadzenAxisTitle Text="Humidity (%)" />
+                    <RadzenAxisTitle Text="Humidity" />
                 </RadzenValueAxis>
             </RadzenChart>
         }
+
+        
      </div>
 </div>
 
@@ -124,6 +135,8 @@
         var readings = await MySensorService.GetSensorReadingHistoryForSensors(sensorsToCheck, SelectedTimePeriod);
 
         SensorHistories.AddRange(readings);
+
+        _collapseFilters = true;
     }
 
     private string FormatAsValue(object value)
