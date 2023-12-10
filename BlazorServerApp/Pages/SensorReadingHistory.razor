@@ -48,6 +48,7 @@
                     <RadzenGridLines Visible="true" />
                     <RadzenAxisTitle Text="Temperature" />
                 </RadzenValueAxis>
+                <RadzenLegend Position="LegendPosition.Bottom" />
             </RadzenChart>
         }
 
@@ -66,9 +67,9 @@
                     <RadzenGridLines Visible="true" />
                     <RadzenAxisTitle Text="Humidity" />
                 </RadzenValueAxis>
+                <RadzenLegend Position="LegendPosition.Bottom" />
             </RadzenChart>
         }
-
         
      </div>
 </div>
@@ -84,7 +85,10 @@
 
     public IEnumerable<ReadingTimePeriod> AvailableTimePeriods { get; set; } = new List<ReadingTimePeriod>() {
         ReadingTimePeriod.Day,
+        ReadingTimePeriod.TwoDays,
+        ReadingTimePeriod.ThreeDays,
         ReadingTimePeriod.Week,
+        ReadingTimePeriod.TwoWeeks,
         ReadingTimePeriod.Month,
         ReadingTimePeriod.Year,
         ReadingTimePeriod.AllTime };
@@ -160,15 +164,19 @@
 
             switch (SelectedTimePeriod)
             {
-                case ReadingTimePeriod.Day:
+                case ReadingTimePeriod.Day:                
                     returnValue = Convert.ToDateTime(value).ToString("HH:mm");
-                    break;
+                    break;             
+                case ReadingTimePeriod.TwoDays:
+                case ReadingTimePeriod.ThreeDays:
                 case ReadingTimePeriod.Week:
                     returnValue = Convert.ToDateTime(value).ToString("ddd");
                     break;
+                case ReadingTimePeriod.TwoWeeks:
                 case ReadingTimePeriod.Month:
                     returnValue = Convert.ToDateTime(value).ToString("dd");
                     break;
+                case ReadingTimePeriod.AllTime:
                 case ReadingTimePeriod.Year:
                 default:
                     returnValue = Convert.ToDateTime(value).ToString("MMM");

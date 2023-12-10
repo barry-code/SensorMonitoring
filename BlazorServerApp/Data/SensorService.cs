@@ -141,8 +141,17 @@ public class SensorService
             case ReadingTimePeriod.Day:
                 startTime = DateTimeOffset.Now.AddDays(-1);
                 break;
+            case ReadingTimePeriod.TwoDays:
+                startTime = DateTimeOffset.Now.AddDays(-2);
+                break;
+            case ReadingTimePeriod.ThreeDays:
+                startTime = DateTimeOffset.Now.AddDays(-3);
+                break;
             case ReadingTimePeriod.Week:
                 startTime = DateTimeOffset.Now.AddDays(-7);
+                break;
+            case ReadingTimePeriod.TwoWeeks:
+                startTime = DateTimeOffset.Now.AddDays(-14);
                 break;
             case ReadingTimePeriod.Month:
                 startTime = DateTimeOffset.Now.AddMonths(-1);
