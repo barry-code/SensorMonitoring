@@ -1,57 +1,40 @@
 ﻿@page "/sensorReadingSummary"
 @page "/"
 @using System.Collections.ObjectModel
-@using Radzen;
-@using Radzen.Blazor;
 
 @inject NavigationManager NavigationManager;
 @inject SensorService MySensorService;
 
-<h5>Sensor Reading Summary</h5>
+<MudTable Items="@Readings" Loading="@IsLoading" Elevation="2" Breakpoint="Breakpoint.None">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6" Color="MudBlazor.Color.Primary">Sensor Summary</MudText>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Reading</MudTh>
+        <MudTh Class="d-none d-md-table-cell">Time</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        @{
+            MudBlazor.Color colorToUse = context.IsCommsLost ? MudBlazor.Color.Error : MudBlazor.Color.Success;
+            string connectionIconToUse = context.IsCommsLost ? Icons.Material.Filled.SensorsOff : Icons.Material.Filled.Sensors;
+            string readingIconToUse = context.Sensor.Description.ToLower().Contains("humidity") ? Icons.Material.Filled.WaterDrop : Icons.Material.Filled.Thermostat;
+        }
+        <MudTd DataLabel="Name">            
+            <MudButton EndIcon="@connectionIconToUse" IconColor="@colorToUse" OnClick="@(() => NavigateToSensorHistory(context.Sensor.Id))" FullWidth="false">@context.Sensor.Name</MudButton>
+        </MudTd>
 
-<div class="container-fluid">
-    @if (IsLoading)
-    {
-        <button class="btn btn-dark" type="button" disabled>
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            Loading...
-        </button>
-    }
-    else{
-        <RadzenDataGrid TItem="SensorSummary" Data="@Readings">
-            <EmptyTemplate>
-                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">No sensors to display.</p>
-            </EmptyTemplate>
-            <Columns>
-                <RadzenDataGridColumn TItem="SensorSummary" Property="Sensor.Name" Title="Name">
-                    <Template>
-                        <RadzenStack Orientation="Orientation.Horizontal" onclick="@(() => NavigateToSensorHistory(context.Sensor.Id))">
-                            <RadzenText>@context.Sensor.Name</RadzenText>
-                            @if (context.IsCommsLost)
-                            {
-                                <RadzenIcon Icon="sensors_off" IconStyle="@IconStyle.Danger" />
-                            }
-                            else
-                            {
-                                <RadzenIcon Icon="sensors" IconStyle="@IconStyle.Success" />
-                            }
-                        </RadzenStack>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="SensorSummary" Property="LastReading" Title="Last Reading">
-                    <Template>
-                        <RadzenStack Orientation="Orientation.Horizontal" onclick="@(() => NavigateToSensorHistory(context.Sensor.Id))">
-                             <RadzenIcon Icon="@context.ReadingIconName" />
-                             <RadzenText>@context.LastReadingDisplay</RadzenText>
-                         </RadzenStack>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="SensorSummary" Property="LastReadingTimeDisplay" Title="Last Reading Time" />
-            </Columns>
+        <MudTd DataLabel="Reading">
+            <MudStack Row="true">
+                <MudIcon Icon="@readingIconToUse" />
+                <MudText>@context.LastReadingDisplay</MudText>
+            </MudStack>
+            
+        </MudTd>
 
-        </RadzenDataGrid>
-    }
-</div>
+        <MudTd DataLabel="Time" Class="d-none d-md-table-cell">@context.LastReadingTimeDisplay</MudTd>
+    </RowTemplate>
+</MudTable>
 
 @code {
     private bool isFirstLoad;

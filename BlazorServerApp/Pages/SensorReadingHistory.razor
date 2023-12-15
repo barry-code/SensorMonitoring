@@ -4,84 +4,63 @@
 
 @inject SensorService MySensorService
 
-<h5>Sensor Reading History</h5>
+<MudText Typo="Typo.h6" Color="MudBlazor.Color.Primary">Sensor Reading History</MudText>
 
-<div class="container-fluid">
-    <div class="row">
-        @if (!_collapseFilters)
-        {
-            <RadzenCard>
+<MudStack Row="true" Class="mt-3">
+    <MudButton OnClick="ToggleFilterVisibility" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Filter</MudButton>
+    <MudButton OnClick="RefreshSensorHistory" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Refresh</MudButton>
+</MudStack>
+@if (!_collapseFilters)
+    {
+        <MudPaper Class="mt-3">
+            <MudStack>
                 @foreach (var item in _sensorList)
                 {
-                    <div>
-                        <RadzenCheckBox @bind-Value=@item.Display Name=@($"sensorShow{item.SensorId}") Style="margin-left:15px"></RadzenCheckBox>
-                        <RadzenLabel Text=@item.SensorName For=@($"sensorShow{item.SensorId}") />
-                    </div>
+                    <MudCheckBox T="bool" Dense="true" Label="@item.SensorName" Checked="@item.Display" CheckedChanged="@(e => SensorSelectionChanged((bool)e, item.SensorId))"></MudCheckBox>
                 }
-                <RadzenCheckBox @bind-Value=@_smoothLines Name="smoothLines" Style="margin-left:15px"></RadzenCheckBox>
-                <RadzenLabel Text="Smooth Lines" For="smoothLines" />
-                <RadzenCheckBox @bind-Value=@_showDataLabels Name="dataLabels" Style="margin-left:15px"></RadzenCheckBox>
-                <RadzenLabel Text="Show Data Labels" For="dataLabels" />
-            </RadzenCard>
-        }
+            </MudStack>
+        </MudPaper>
+    }
 
-        <RadzenCard>
-            <RadzenDropDown @bind-Value=@SelectedTimePeriod Data=@AvailableTimePeriods></RadzenDropDown>
-            <RadzenButton Text="Refresh" Click=@(async args => await RefreshSensorHistory())></RadzenButton>
-            <RadzenButton Text="Filter" Click="@(() => ToggleFilterVisibility())"></RadzenButton>
-        </RadzenCard>
-    </div>
-    <div class="row">
-        
-        @if (SensorHistories.Any(s => s.SensorTpe == SensorType.Temperature))
-        {
-            <RadzenChart ColorScheme="ColorScheme.Pastel">
-                @foreach (var sensor in SensorHistories.Where(s => s.SensorTpe == SensorType.Temperature))
-                {
-                    <RadzenLineSeries Data="@sensor.Readings" Smooth=@_smoothLines CategoryProperty="DateTime" Title="@sensor.Sensor.Name" LineType="LineType.Dashed" ValueProperty="ReadingValue">
-                        <RadzenMarkers MarkerType="MarkerType.Circle" />
-                        <RadzenSeriesDataLabels Visible="@_showDataLabels" OffsetY="-10" />
-                    </RadzenLineSeries>
-                }
-                <RadzenCategoryAxis Padding="20" Formatter="@FormatTheDate" />
-                <RadzenValueAxis Formatter="@FormatFloatValue">
-                    <RadzenGridLines Visible="true" />
-                    <RadzenAxisTitle Text="Temperature" />
-                </RadzenValueAxis>
-                <RadzenLegend Position="LegendPosition.Bottom" />
-            </RadzenChart>
-        }
+<MudSelect Class="mt-3 mb-3" Label="Time Period" Dense="true" T="string" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Filled" >
+    @foreach (var item in AvailableTimePeriods)
+    {
+        <MudSelectItem Value="@item.ToString()"></MudSelectItem>
+    }
+</MudSelect>
 
-        @if (SensorHistories.Any(s => s.SensorTpe == SensorType.Humidity))
+<div>
+    <ApexChart
+        TItem="ChartData"
+        Title="Temperature" 
+        XAxisType="XAxisType.Datetime" 
+        Options="@_chartOptions">
+
+        @foreach (var item in _sensorList.Where(s => s.Display))
         {
-            <RadzenChart ColorScheme="ColorScheme.Pastel">
-                @foreach (var sensor in SensorHistories.Where(s => s.SensorTpe == SensorType.Humidity))
-                {
-                    <RadzenLineSeries Data="@sensor.Readings" Smooth=@_smoothLines CategoryProperty="DateTime" Title="@sensor.Sensor.Name" LineType="LineType.Dashed" ValueProperty="ReadingValue">
-                        <RadzenMarkers MarkerType="MarkerType.Circle" />
-                        <RadzenSeriesDataLabels Visible="@_showDataLabels" OffsetY="-10" />
-                    </RadzenLineSeries>
-                }                
-                <RadzenCategoryAxis Padding="20" Formatter="@FormatTheDate" />
-                <RadzenValueAxis Formatter="@FormatFloatValue">
-                    <RadzenGridLines Visible="true" />
-                    <RadzenAxisTitle Text="Humidity" />
-                </RadzenValueAxis>
-                <RadzenLegend Position="LegendPosition.Bottom" />
-            </RadzenChart>
+            <ApexPointSeries 
+                TItem="ChartData"
+                Items="TemperatureData.Where(d => d.SensorId == item.SensorId)"
+                Name="@item.SensorName"
+                SeriesType="SeriesType.Line"
+                XValue="e => e.TimeStamp.Ticks"
+                YValue="e => e.ReadingValue"
+                />
         }
-        
-     </div>
+    </ApexChart>
 </div>
+
+
 
 @code {
     [Parameter]
     public int SensorId { get; set; } = 0;
 
     private bool _collapseFilters;
-    private bool _showDataLabels;
-    private bool _smoothLines;
-    private List<DisplaySensor> _sensorList = new List<DisplaySensor>();
+    private List<DisplaySensor> _sensorList = new();
+    private ApexChartOptions<ChartData> _chartOptions = new();
+    private List<ChartData> TemperatureData = new();
+    private List<ChartData> HumidityData = new();
 
     public IEnumerable<ReadingTimePeriod> AvailableTimePeriods { get; set; } = new List<ReadingTimePeriod>() {
         ReadingTimePeriod.Day,
@@ -93,13 +72,15 @@
         ReadingTimePeriod.Year,
         ReadingTimePeriod.AllTime };
 
-    public ReadingTimePeriod SelectedTimePeriod = ReadingTimePeriod.Day;
-    public List<SensorHistory> SensorHistories = new();
+    public ReadingTimePeriod SelectedTimePeriod = ReadingTimePeriod.Week;
 
     protected override async Task OnInitializedAsync()
     {
+        SetupChart();
+
         _sensorList.Clear();
-        SensorHistories.Clear();
+        TemperatureData.Clear();
+        HumidityData.Clear();
 
         var sensorsFound = await MySensorService.GetSensors();
 
@@ -121,7 +102,7 @@
             {
                 sensor.Display = true;
                 await RefreshSensorHistory();
-            }            
+            }
         }
 
         await base.OnInitializedAsync();
@@ -129,7 +110,8 @@
 
     private async Task RefreshSensorHistory()
     {
-        SensorHistories.Clear();
+        TemperatureData.Clear();
+        HumidityData.Clear();
 
         if (!_sensorList.Any(s => s.Display))
             return;
@@ -138,9 +120,40 @@
 
         var readings = await MySensorService.GetSensorReadingHistoryForSensors(sensorsToCheck, SelectedTimePeriod);
 
-        SensorHistories.AddRange(readings);
+        TemperatureData.AddRange(GetChartData(readings.FirstOrDefault(s => s.SensorType == SensorType.Temperature)));
+        //HumiditySensorHistories.AddRange(readings.Where(s => s.SensorType == SensorType.Humidity));
+
+        //foreach (var item in TempSensorHistories)
+        //{
+        //    if (item.SensorType == SensorType.Temperature)
+        //    {
+        //        TemperatureSeries.Add(new ChartSeries()
+        //            {
+        //                Name = item.Sensor.Name,
+        //                Data = item.Readings.Select(x => (double)x.ReadingValue).ToArray()
+        //            });
+        //    }
+        //    else if (item.SensorType == SensorType.Humidity)
+        //    {
+        //        HumiditySeries.Add(new ChartSeries()
+        //            {
+        //                Name = item.Sensor.Name,
+        //                Data = item.Readings.Select(x => (double)x.ReadingValue).ToArray()
+        //            });
+        //    }
+        //}
 
         _collapseFilters = true;
+    }
+
+    private void SensorSelectionChanged(bool isChecked, int sensorId)
+    {
+        var sensor = _sensorList.FirstOrDefault(s => s.SensorId == sensorId);
+
+        if (sensor is null)
+            return;
+
+        sensor.Display = isChecked;
     }
 
     private string FormatAsValue(object value)
@@ -164,9 +177,9 @@
 
             switch (SelectedTimePeriod)
             {
-                case ReadingTimePeriod.Day:                
+                case ReadingTimePeriod.Day:
                     returnValue = Convert.ToDateTime(value).ToString("HH:mm");
-                    break;             
+                    break;
                 case ReadingTimePeriod.TwoDays:
                 case ReadingTimePeriod.ThreeDays:
                 case ReadingTimePeriod.Week:
@@ -193,9 +206,48 @@
         _collapseFilters = !_collapseFilters;
     }
 
-    internal class DisplaySensor{
+    internal class DisplaySensor
+    {
         public int SensorId { get; set; }
         public string SensorName { get; set; } = string.Empty;
         public bool Display { get; set; }
+    }
+
+    internal class MyData
+    {
+        public string Category { get; set; } = string.Empty;
+        public int NetProfit { get; set; }
+        public int Revenue { get; set; }
+    }
+
+    public class ChartData{
+        public int SensorId { get; set; }
+        public string SensorName { get; set; } = string.Empty;
+        public decimal ReadingValue { get; set; }
+        public DateTime TimeStamp { get; set; }
+    }
+
+    public ChartData[] GetChartData(SensorHistory history)
+    {
+        if (history is null)
+            return new ChartData[0];
+
+        var result = history.Readings.Select(x => new ChartData()
+        {
+            SensorId = x.SensorId,
+            SensorName = x.SensorName,
+            ReadingValue = (decimal)Math.Round(x.ReadingValue,1),
+            TimeStamp = x.DateTime
+        });
+
+        return result.ToArray() ?? new ChartData[0];
+    }
+
+    private void SetupChart()
+    {
+        _chartOptions.Theme = new Theme()
+            {
+                Mode = Mode.Dark
+            };
     }
 }

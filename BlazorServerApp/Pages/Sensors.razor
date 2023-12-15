@@ -1,43 +1,40 @@
 ﻿@page "/sensors"
 
 @inject SensorService MySensorService
-<h5>Sensors</h5>
-<div class="container-fluid">
-    @if (IsLoading)
-    {
-        <button class="btn btn-dark" type="button" disabled>
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            Loading...
-        </button>
-    }    
-    else
-    {
-        if (AddNewSensor)
-        {
-            <div>
-            
-            </div>
-            <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Text="Cancel" Click="ToggleAddSensorMode"></RadzenButton>
-            <RadzenButton ButtonStyle="Radzen.ButtonStyle.Success" Text="Save" Click="SaveNewSensor"></RadzenButton>
-        }
-        else
-        {
-            <RadzenDataGrid TItem="SensorDTO" Data="@SensorList">
-                <EmptyTemplate>
-                    <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">No sensors to display.</p>
-                </EmptyTemplate>
-                <Columns>
-                    <RadzenDataGridColumn TItem="SensorDTO" Property="Name" Title="Name" />
-                    <RadzenDataGridColumn TItem="SensorDTO" Property="Description" Title="Description" />
-                    <RadzenDataGridColumn TItem="SensorDTO" Property="Delta" Title="Delta" />
-                    <RadzenDataGridColumn TItem="SensorDTO" Property="Id" Title="Id" />
-                </Columns>
 
-            </RadzenDataGrid>
-            <RadzenButton Text="Add New Sensor" ButtonStyle="Radzen.ButtonStyle.Success" Icon="add_circle_outline" Click="ToggleAddSensorMode"></RadzenButton>
-        }        
+@if (AddNewSensor)
+{
+    <MudCard Elevation="2" Class="mt-5">
+        <MudText>This is new sensor...</MudText>
+    </MudCard>
+    <MudButton Variant="Variant.Filled" EndIcon="@MudBlazor.Icons.Material.Filled.Cancel" Color="MudBlazor.Color.Error" OnClick="ToggleAddSensorMode" Class="mt-3">Cancel</MudButton>
+    <MudButton Variant="Variant.Filled" EndIcon="@MudBlazor.Icons.Material.Filled.Save" Color="MudBlazor.Color.Success" OnClick="SaveNewSensor" Class="mt-3">Save</MudButton>
+}
+else
+{
+    <MudTable Items="@SensorList" Breakpoint="Breakpoint.None" Loading="@IsLoading" Elevation="2" >
+        <ToolBarContent>
+            <MudText Typo="Typo.h6" Color="MudBlazor.Color.Primary">Sensors</MudText>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Id</MudTh>
+            <MudTh Class="d-none d-md-table-cell">Delta</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Delta" Class="d-none d-md-table-cell">@context.Delta</MudTd>
+        </RowTemplate>
+    </MudTable>
+
+    if (!IsLoading)
+    {
+        <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Success" EndIcon="@Icons.Material.Filled.Add" OnClick="ToggleAddSensorMode" Class="mt-3">Add Sensor</MudButton>
     }
-</div>
+}
 
 @code {
     public List<SensorDTO> SensorList { get; set; } = new List<SensorDTO>();

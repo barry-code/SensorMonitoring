@@ -10,6 +10,5 @@ public class SensorSummary
     public bool HasNoReadings => LastReadingTime == DateTimeOffset.MinValue;
     public bool IsCommsLost => LastReadingTime < DateTimeOffset.UtcNow.AddHours(-2);
     public string LastReadingDisplay => HasNoReadings ? "" : (Sensor.Description.ToLower().Contains("humidity") ? $"{LastReading} %" : $"{LastReading} °C");
-    public string LastReadingTimeDisplay => HasNoReadings ? "" : LastReadingTime.ToLocalTime().ToString("ddd-MMM-yyyy HH:mm:ss");
-    public string ReadingIconName => Sensor.Description.ToLower().Contains("humidity") ? "water_drop" : "thermostat";
+    public string LastReadingTimeDisplay => HasNoReadings ? "" : LastReadingTime.ToLocalTime().ToString("dd-MMM-yyyy HH:mm:ss");
 }
