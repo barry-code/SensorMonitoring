@@ -30,35 +30,61 @@
 </MudSelect>
 
 <div>
-    <ApexChart
+    <ApexChart @ref="myTempChart"
         TItem="ChartData"
-        Title="Temperature" 
-        XAxisType="XAxisType.Datetime" 
-        Options="@_chartOptions">
+        XAxisType="XAxisType.Datetime"
+               Options="@_tempChartOptions">
 
         @foreach (var item in _sensorList.Where(s => s.Display))
         {
-            <ApexPointSeries 
-                TItem="ChartData"
-                Items="TemperatureData.Where(d => d.SensorId == item.SensorId)"
-                Name="@item.SensorName"
-                SeriesType="SeriesType.Line"
-                XValue="e => e.TimeStamp.Ticks"
-                YValue="e => e.ReadingValue"
-                />
+            var history = TemperatureData.Where(d => d.SensorId == item.SensorId).ToList();
+            if (history.Count > 0)
+            {
+                <ApexPointSeries TItem="ChartData"
+                         Items="TemperatureData.Where(d => d.SensorId == item.SensorId).ToList()"
+                         Name="@item.SensorName"
+                         SeriesType="SeriesType.Line"
+                         XValue="e => e.TimeStamp.Ticks"
+                         YValue="e => e.ReadingValue" />
+            }
+            
         }
     </ApexChart>
 </div>
 
+<div>
+    <ApexChart @ref="myHumChart"
+        TItem="ChartData"
+               XAxisType="XAxisType.Datetime"
+               Options="@_humChartOptions">
+
+        @foreach (var item in _sensorList.Where(s => s.Display))
+        {
+            var history = HumidityData.Where(d => d.SensorId == item.SensorId).ToList();
+            if (history.Count > 0)
+            {
+                <ApexPointSeries TItem="ChartData"
+                        Items="HumidityData.Where(d => d.SensorId == item.SensorId).ToList()"
+                        Name="@item.SensorName"
+                        SeriesType="SeriesType.Line"
+                        XValue="e => e.TimeStamp.Ticks"
+                        YValue="e => e.ReadingValue" />
+            }            
+        }
+    </ApexChart>
+</div>
 
 
 @code {
     [Parameter]
     public int SensorId { get; set; } = 0;
 
+    private ApexChart<ChartData> myTempChart;
+    private ApexChart<ChartData> myHumChart;
     private bool _collapseFilters;
     private List<DisplaySensor> _sensorList = new();
-    private ApexChartOptions<ChartData> _chartOptions = new();
+    private ApexChartOptions<ChartData> _tempChartOptions = new();
+    private ApexChartOptions<ChartData> _humChartOptions = new();
     private List<ChartData> TemperatureData = new();
     private List<ChartData> HumidityData = new();
 
@@ -111,7 +137,7 @@
     private async Task RefreshSensorHistory()
     {
         TemperatureData.Clear();
-        HumidityData.Clear();
+        HumidityData.Clear();        
 
         if (!_sensorList.Any(s => s.Display))
             return;
@@ -120,7 +146,24 @@
 
         var readings = await MySensorService.GetSensorReadingHistoryForSensors(sensorsToCheck, SelectedTimePeriod);
 
-        TemperatureData.AddRange(GetChartData(readings.FirstOrDefault(s => s.SensorType == SensorType.Temperature)));
+        if (readings is null)
+            return;
+
+        var tempHistory = readings.Where(s => s.SensorType == SensorType.Temperature).ToList();
+        var humHistory = readings.Where(s => s.SensorType == SensorType.Humidity).ToList();
+
+        var tempChartData = GetChartData(tempHistory);
+        var humChartData = GetChartData(humHistory);
+
+        TemperatureData = new List<ChartData>();
+        TemperatureData.AddRange(tempChartData);        
+
+        HumidityData = new List<ChartData>();
+        HumidityData.AddRange(humChartData);
+
+        await myTempChart.UpdateSeriesAsync();
+        await myHumChart.UpdateSeriesAsync();
+
         //HumiditySensorHistories.AddRange(readings.Where(s => s.SensorType == SensorType.Humidity));
 
         //foreach (var item in TempSensorHistories)
@@ -213,13 +256,6 @@
         public bool Display { get; set; }
     }
 
-    internal class MyData
-    {
-        public string Category { get; set; } = string.Empty;
-        public int NetProfit { get; set; }
-        public int Revenue { get; set; }
-    }
-
     public class ChartData{
         public int SensorId { get; set; }
         public string SensorName { get; set; } = string.Empty;
@@ -227,27 +263,53 @@
         public DateTime TimeStamp { get; set; }
     }
 
-    public ChartData[] GetChartData(SensorHistory history)
+    public List<ChartData> GetChartData(List<SensorHistory> histories)
     {
-        if (history is null)
-            return new ChartData[0];
+        var result = new List<ChartData>();
 
-        var result = history.Readings.Select(x => new ChartData()
+        if (histories is null)
+            return result;
+
+        foreach(var item in histories)
         {
-            SensorId = x.SensorId,
-            SensorName = x.SensorName,
-            ReadingValue = (decimal)Math.Round(x.ReadingValue,1),
-            TimeStamp = x.DateTime
-        });
+            var data = item.Readings.Select(x => new ChartData()
+            {
+                SensorId = item.Sensor.Id,
+                SensorName = item.Sensor.Name,
+                ReadingValue = (decimal)Math.Round(x.ReadingValue, 1),
+                TimeStamp = x.DateTime
+            }).ToArray();
 
-        return result.ToArray() ?? new ChartData[0];
+            result.AddRange(data);
+        }
+
+        return result;
     }
 
     private void SetupChart()
     {
-        _chartOptions.Theme = new Theme()
+        _tempChartOptions.Theme = new Theme()
+        {
+            Mode = Mode.Dark
+        };
+
+        _tempChartOptions.Title = new Title()
             {
-                Mode = Mode.Dark
+                Text = "Temperature",
+                Align = ApexCharts.Align.Center, 
+                Floating = true
+            };
+
+        _humChartOptions.Theme = new Theme()
+            {
+                Mode = Mode.Dark,
+            };
+
+        _humChartOptions.Title = new Title()
+            {
+                Text = "Humidity",
+                Align = ApexCharts.Align.Center,
+                Floating = true
             };
     }
 }
