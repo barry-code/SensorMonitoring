@@ -1,6 +1,8 @@
 ﻿@page "/sensorReadingHistory"
 @page "/sensorReadingHistory/{sensorid:int}"
-@using SensorMonitoring.Shared.Api
+
+@using Plotly.Blazor.LayoutLib
+@using Plotly.Blazor.Traces.ScatterLib
 
 @inject SensorService MySensorService
 
@@ -22,71 +24,47 @@
         </MudPaper>
     }
 
-<MudSelect Class="mt-3 mb-3" Label="Time Period" Dense="true" T="string" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Filled" >
+<MudSelect Class="mt-3 mb-3" Label="Time Period" @bind-Value="@timePeriod" SelectedValuesChanged="@((valueSelected) => TimePeriodChanged(valueSelected) )" Dense="true" T="string" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Filled">
     @foreach (var item in AvailableTimePeriods)
     {
         <MudSelectItem Value="@item.ToString()"></MudSelectItem>
     }
 </MudSelect>
 
-<div>
-    <ApexChart @ref="myTempChart"
-        TItem="ChartData"
-        XAxisType="XAxisType.Datetime"
-               Options="@_tempChartOptions">
+<MudContainer Class="mx-0 px-0">
+    <div style="@(HideTemperatureChart ? "display:none; margin:0px; padding:0px;" : "margin:0px; padding:0px;")">
+        <PlotlyChart @bind-Config="configTemperature" @bind-Layout="layoutTemperature" @bind-Data="dataTemperature" @ref="chartTemperature" />
+    </div>
+</MudContainer>
 
-        @foreach (var item in _sensorList.Where(s => s.Display))
-        {
-            var history = TemperatureData.Where(d => d.SensorId == item.SensorId).ToList();
-            if (history.Count > 0)
-            {
-                <ApexPointSeries TItem="ChartData"
-                         Items="TemperatureData.Where(d => d.SensorId == item.SensorId).ToList()"
-                         Name="@item.SensorName"
-                         SeriesType="SeriesType.Line"
-                         XValue="e => e.TimeStamp.Ticks"
-                         YValue="e => e.ReadingValue" />
-            }
-            
-        }
-    </ApexChart>
-</div>
-
-<div>
-    <ApexChart @ref="myHumChart"
-        TItem="ChartData"
-               XAxisType="XAxisType.Datetime"
-               Options="@_humChartOptions">
-
-        @foreach (var item in _sensorList.Where(s => s.Display))
-        {
-            var history = HumidityData.Where(d => d.SensorId == item.SensorId).ToList();
-            if (history.Count > 0)
-            {
-                <ApexPointSeries TItem="ChartData"
-                        Items="HumidityData.Where(d => d.SensorId == item.SensorId).ToList()"
-                        Name="@item.SensorName"
-                        SeriesType="SeriesType.Line"
-                        XValue="e => e.TimeStamp.Ticks"
-                        YValue="e => e.ReadingValue" />
-            }            
-        }
-    </ApexChart>
-</div>
-
+<MudContainer Class="mx-0 mt-3 px-0">
+    <div style="@(HideHumidityChart ? "display:none; margin:0px; padding:0px;" : "margin:0px; padding:0px;")">
+        <PlotlyChart @bind-Config="configHumidity" @bind-Layout="layoutHumidity" @bind-Data="dataHumidity" @ref="chartHumidity" />
+    </div>
+    
+</MudContainer>
 
 @code {
     [Parameter]
     public int SensorId { get; set; } = 0;
 
-    private ApexChart<ChartData> myTempChart;
-    private ApexChart<ChartData> myHumChart;
+    [CascadingParameter]
+    private MudTheme Theme { get; set; }
+
     private bool _collapseFilters;
     private List<DisplaySensor> _sensorList = new();
-    private ApexChartOptions<ChartData> _tempChartOptions = new();
-    private ApexChartOptions<ChartData> _humChartOptions = new();
-    private List<ChartData> TemperatureData = new();
-    private List<ChartData> HumidityData = new();
+    public bool HasTemperatureData { get; set; }
+    public bool HasHumidityData { get; set; }
+    public bool HideTemperatureChart { get; set; } = true;
+    public bool HideHumidityChart { get; set; } = true;
+    PlotlyChart chartTemperature;
+    Config configTemperature = new Config();
+    Layout layoutTemperature = new Layout();
+    IList<ITrace> dataTemperature = new List<ITrace>();
+    PlotlyChart chartHumidity;
+    Config configHumidity = new Config();
+    Layout layoutHumidity = new Layout();
+    IList<ITrace> dataHumidity = new List<ITrace>();
 
     public IEnumerable<ReadingTimePeriod> AvailableTimePeriods { get; set; } = new List<ReadingTimePeriod>() {
         ReadingTimePeriod.Day,
@@ -98,15 +76,16 @@
         ReadingTimePeriod.Year,
         ReadingTimePeriod.AllTime };
 
-    public ReadingTimePeriod SelectedTimePeriod = ReadingTimePeriod.Week;
+    public ReadingTimePeriod SelectedTimePeriod { get; set; } = ReadingTimePeriod.Day;
+    private string timePeriod = ReadingTimePeriod.Day.ToString();
 
     protected override async Task OnInitializedAsync()
     {
-        SetupChart();
+        SetupCharts();
 
+        HasTemperatureData = false;
+        HasHumidityData = false;
         _sensorList.Clear();
-        TemperatureData.Clear();
-        HumidityData.Clear();
 
         var sensorsFound = await MySensorService.GetSensors();
 
@@ -136,8 +115,13 @@
 
     private async Task RefreshSensorHistory()
     {
-        TemperatureData.Clear();
-        HumidityData.Clear();        
+        _collapseFilters = true;
+
+        HasHumidityData = false;
+        HasTemperatureData = false;
+
+        await chartTemperature.Clear();
+        await chartHumidity.Clear();
 
         if (!_sensorList.Any(s => s.Display))
             return;
@@ -152,41 +136,37 @@
         var tempHistory = readings.Where(s => s.SensorType == SensorType.Temperature).ToList();
         var humHistory = readings.Where(s => s.SensorType == SensorType.Humidity).ToList();
 
-        var tempChartData = GetChartData(tempHistory);
-        var humChartData = GetChartData(humHistory);
+        foreach (var item in tempHistory)
+        {
+            List<object> x = item.Readings.Select(r => (object)r.DateTime).ToList();
+            List<object> y = item.Readings.Select(r => (object)r.ReadingValue).ToList();
+            await chartTemperature.AddTrace(new Scatter
+                {
+                    Name = $"{item.Sensor.Name}",
+                    Mode = ModeFlag.Lines | ModeFlag.Markers,
+                    X = x,
+                    Y = y
+                });
+        }
 
-        TemperatureData = new List<ChartData>();
-        TemperatureData.AddRange(tempChartData);        
+        foreach (var item in humHistory)
+        {
+            List<object> x = item.Readings.Select(r => (object)r.DateTime).ToList();
+            List<object> y = item.Readings.Select(r => (object)r.ReadingValue).ToList();
+            await chartHumidity.AddTrace(new Scatter
+                {
+                    Name = $"{item.Sensor.Name}",
+                    Mode = ModeFlag.Lines | ModeFlag.Markers,
+                    X = x,
+                    Y = y
+                });
+        }
 
-        HumidityData = new List<ChartData>();
-        HumidityData.AddRange(humChartData);
+        HasTemperatureData = tempHistory.Count > 0;
+        HasHumidityData = humHistory.Count > 0;
 
-        await myTempChart.UpdateSeriesAsync();
-        await myHumChart.UpdateSeriesAsync();
-
-        //HumiditySensorHistories.AddRange(readings.Where(s => s.SensorType == SensorType.Humidity));
-
-        //foreach (var item in TempSensorHistories)
-        //{
-        //    if (item.SensorType == SensorType.Temperature)
-        //    {
-        //        TemperatureSeries.Add(new ChartSeries()
-        //            {
-        //                Name = item.Sensor.Name,
-        //                Data = item.Readings.Select(x => (double)x.ReadingValue).ToArray()
-        //            });
-        //    }
-        //    else if (item.SensorType == SensorType.Humidity)
-        //    {
-        //        HumiditySeries.Add(new ChartSeries()
-        //            {
-        //                Name = item.Sensor.Name,
-        //                Data = item.Readings.Select(x => (double)x.ReadingValue).ToArray()
-        //            });
-        //    }
-        //}
-
-        _collapseFilters = true;
+        HideTemperatureChart = !HasTemperatureData;
+        HideHumidityChart = !HasHumidityData;
     }
 
     private void SensorSelectionChanged(bool isChecked, int sensorId)
@@ -245,8 +225,80 @@
         return string.Empty;
     }
 
-    private void ToggleFilterVisibility(){
+    private void ToggleFilterVisibility()
+    {
         _collapseFilters = !_collapseFilters;
+    }
+
+    private void SetupCharts()
+    {
+        configTemperature = new Config
+            {
+                Responsive = true, 
+                DisplayLogo = false, 
+                DisplayModeBar = Plotly.Blazor.ConfigLib.DisplayModeBarEnum.False
+            };
+
+        configHumidity = new Config
+            {
+                Responsive = true,
+                DisplayLogo = false,
+                DisplayModeBar = Plotly.Blazor.ConfigLib.DisplayModeBarEnum.False
+            };
+
+        layoutTemperature = new Layout
+            {
+                Title = new Title
+                {
+                    Text = "TEMPERATURE"
+                },
+                Legend = new List<Legend> { new Legend() { Orientation = Plotly.Blazor.LayoutLib.LegendLib.OrientationEnum.V, Y = -0.5m, X = 0.5m } },
+                ShowLegend = true,
+                PaperBgColor = Theme.PaletteDark.Surface.ToString(),
+                PlotBgColor = Theme.PaletteDark.Surface.ToString(),
+                Font = new Font
+                {
+                    Color = Theme.PaletteDark.TextPrimary.ToString()
+                }, 
+                Margin = new Plotly.Blazor.LayoutLib.Margin(){
+                    B = 30, 
+                    L = 35, 
+                    T = 35, 
+                    R = 0
+                }
+            };
+
+        layoutHumidity = new Layout
+            {
+                Title = new Title
+                {
+                    Text = "HUMIDITY"
+                },
+                Legend = new List<Legend> { new Legend() { Orientation = Plotly.Blazor.LayoutLib.LegendLib.OrientationEnum.V, Y = -0.5m, X = 0.5m } },
+                ShowLegend = true,
+                PaperBgColor = Theme.PaletteDark.Surface.ToString(),
+                PlotBgColor = Theme.PaletteDark.Surface.ToString(),
+                Font = new Font
+                {
+                    Color = Theme.PaletteDark.TextPrimary.ToString()
+                },
+                Margin = new Plotly.Blazor.LayoutLib.Margin()
+                {
+                    B = 30,
+                    L = 35,
+                    T = 35,
+                    R = 0
+                }
+            };
+    }
+
+    private void TimePeriodChanged(IEnumerable<string> value)
+    {
+        if (!Enum.TryParse<ReadingTimePeriod>(value.FirstOrDefault(), true, out ReadingTimePeriod result))
+            return;
+
+        SelectedTimePeriod = result;
+        timePeriod = SelectedTimePeriod.ToString();
     }
 
     internal class DisplaySensor
@@ -254,62 +306,5 @@
         public int SensorId { get; set; }
         public string SensorName { get; set; } = string.Empty;
         public bool Display { get; set; }
-    }
-
-    public class ChartData{
-        public int SensorId { get; set; }
-        public string SensorName { get; set; } = string.Empty;
-        public decimal ReadingValue { get; set; }
-        public DateTime TimeStamp { get; set; }
-    }
-
-    public List<ChartData> GetChartData(List<SensorHistory> histories)
-    {
-        var result = new List<ChartData>();
-
-        if (histories is null)
-            return result;
-
-        foreach(var item in histories)
-        {
-            var data = item.Readings.Select(x => new ChartData()
-            {
-                SensorId = item.Sensor.Id,
-                SensorName = item.Sensor.Name,
-                ReadingValue = (decimal)Math.Round(x.ReadingValue, 1),
-                TimeStamp = x.DateTime
-            }).ToArray();
-
-            result.AddRange(data);
-        }
-
-        return result;
-    }
-
-    private void SetupChart()
-    {
-        _tempChartOptions.Theme = new Theme()
-        {
-            Mode = Mode.Dark
-        };
-
-        _tempChartOptions.Title = new Title()
-            {
-                Text = "Temperature",
-                Align = ApexCharts.Align.Center, 
-                Floating = true
-            };
-
-        _humChartOptions.Theme = new Theme()
-            {
-                Mode = Mode.Dark,
-            };
-
-        _humChartOptions.Title = new Title()
-            {
-                Text = "Humidity",
-                Align = ApexCharts.Align.Center,
-                Floating = true
-            };
     }
 }

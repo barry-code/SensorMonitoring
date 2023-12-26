@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
-<MudThemeProvider IsDarkMode="true" />
+
+<MudThemeProvider IsDarkMode="true" Theme="@_theme"/>
+
 <MudDialogProvider />
 <MudSnackbarProvider />
 
@@ -21,14 +23,18 @@
         </MudNavMenu>
     </MudDrawer>
     <MudMainContent Class="pt-10 px-10">
-        <MudContainer Class="mt-5">
-            @Body
-        </MudContainer>
+        <CascadingValue Value="_theme">
+            <MudContainer Class="mt-5">            
+                @Body
+            </MudContainer>
+        </CascadingValue>        
     </MudMainContent>
 </MudLayout>
 
 @code 
 {
+    MudTheme _theme = new();
+
     bool _isMenuOpen = false;
 
     void ToggleMenu()
