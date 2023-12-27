@@ -11,10 +11,12 @@ namespace SensorMonitoring.BlazorServerApp.Data;
 public class SensorService
 {
     private readonly string baseUri;
+    private ServerAppOptions _options;
 
     public SensorService(IOptions<ServerAppOptions> options)
     {
-        baseUri = options.Value.SensorApiUrl;
+        _options = options.Value;
+        baseUri = _options.SensorApiUrl;
     }
 
     public async Task<List<SensorDTO>> GetSensors()
@@ -35,6 +37,11 @@ public class SensorService
 
                     if (sensorsFound is null)
                         return new List<SensorDTO>();
+
+                    if (_options.FilterSensors)
+                    {
+                        sensorsFound.RemoveAll(s => !_options.SensorsToShow.Contains(s.Id));
+                    }
 
                     sensors.AddRange(sensorsFound);
                 }
