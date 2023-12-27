@@ -40,11 +40,11 @@
     }
 </MudSelect>
 
-<MudExpansionPanel Text="TEMPERATURE (° Celcius)" Disabled="@(!HasTemperatureData)" IsExpanded="@HasTemperatureData" HideIcon="true">
+<MudExpansionPanel Text="TEMPERATURE (° Celcius)" Disabled="@(!HasTemperatureData)" IsExpanded="@HasTemperatureData" HideIcon="true" DisableGutters="true">
     <PlotlyChart @bind-Config="configTemperature" @bind-Layout="layoutTemperature" @bind-Data="dataTemperature" @ref="chartTemperature" />
 </MudExpansionPanel>
 
-<MudExpansionPanel Text="HUMIDITY (%)" Disabled="@(!HasHumidityData)" IsExpanded="@HasHumidityData" HideIcon="true">
+<MudExpansionPanel Class="mb-3" Text="HUMIDITY (%)" Disabled="@(!HasHumidityData)" IsExpanded="@HasHumidityData" HideIcon="true" DisableGutters="true">
     <PlotlyChart @bind-Config="configHumidity" @bind-Layout="layoutHumidity" @bind-Data="dataHumidity" @ref="chartHumidity" />
 </MudExpansionPanel>
 
@@ -290,19 +290,23 @@
 
         layoutTemperature = new Layout
             {
-                Legend = new List<Legend> { new Legend() { Orientation = Plotly.Blazor.LayoutLib.LegendLib.OrientationEnum.V, Y = -0.5m, X = 0.5m } },
+                Legend = new List<Legend> { new Legend() { 
+                    Orientation = Plotly.Blazor.LayoutLib.LegendLib.OrientationEnum.V, 
+                    Y = -0.5m, 
+                    X = 0m
+                } },                
                 ShowLegend = true,
                 PaperBgColor = Theme.PaletteDark.Surface.ToString(),
                 PlotBgColor = Theme.PaletteDark.Surface.ToString(),
                 Font = new Font
                 {
                     Color = Theme.PaletteDark.TextPrimary.ToString()
-                }, 
+                },             
                 Margin = new Plotly.Blazor.LayoutLib.Margin(){
-                    B = 30, 
-                    L = 35, 
-                    T = 35, 
-                    R = 0
+                    B = 50, 
+                    L = 40, 
+                    T = 5, 
+                    R = 5
                 }, 
                 XAxis = new List<XAxis>()
                 {
@@ -330,7 +334,11 @@
 
         layoutHumidity = new Layout
             {
-                Legend = new List<Legend> { new Legend() { Orientation = Plotly.Blazor.LayoutLib.LegendLib.OrientationEnum.V, Y = -0.5m, X = 0.5m } },
+                Legend = new List<Legend> { new Legend() { 
+                    Orientation = Plotly.Blazor.LayoutLib.LegendLib.OrientationEnum.V, 
+                    Y = -0.5m,
+                    X = 0m
+                } },
                 ShowLegend = true,
                 PaperBgColor = Theme.PaletteDark.Surface.ToString(),
                 PlotBgColor = Theme.PaletteDark.Surface.ToString(),
@@ -340,10 +348,10 @@
                 },
                 Margin = new Plotly.Blazor.LayoutLib.Margin()
                 {
-                    B = 30,
-                    L = 35,
-                    T = 35,
-                    R = 0
+                    B = 50,
+                    L = 40,
+                    T = 5,
+                    R = 5
                 },
                 XAxis = new List<XAxis>()
                 {
