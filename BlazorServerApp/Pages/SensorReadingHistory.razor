@@ -9,7 +9,7 @@
 <MudText Typo="Typo.h6" Color="MudBlazor.Color.Primary">Sensor Reading History</MudText>
 
 <MudStack Row="true" Class="mt-3">
-    <MudButton OnClick="ToggleFilterVisibility" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Filter</MudButton>
+    <MudButton OnClick="ToggleFilterVisibility" StartIcon="@MudBlazor.Icons.Material.Filled.Filter" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Filter</MudButton>
 
     @if (IsBusy)
     {
@@ -17,7 +17,7 @@
     }
     else
     {
-        <MudButton OnClick="RefreshSensorHistory" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Refresh</MudButton>
+        <MudButton OnClick="RefreshSensorHistory" StartIcon="@MudBlazor.Icons.Material.Filled.Refresh" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Refresh</MudButton>
     }
 </MudStack>
 
@@ -40,13 +40,13 @@
     }
 </MudSelect>
 
-<MudContainer Class="mx-0 px-0">
+<MudExpansionPanel Text="TEMPERATURE (° Celcius)" Disabled="@(!HasTemperatureData)" IsExpanded="@HasTemperatureData" HideIcon="true">
     <PlotlyChart @bind-Config="configTemperature" @bind-Layout="layoutTemperature" @bind-Data="dataTemperature" @ref="chartTemperature" />
-</MudContainer>
+</MudExpansionPanel>
 
-<MudContainer Class="mx-0 my-3 px-0">
+<MudExpansionPanel Text="HUMIDITY (%)" Disabled="@(!HasHumidityData)" IsExpanded="@HasHumidityData" HideIcon="true">
     <PlotlyChart @bind-Config="configHumidity" @bind-Layout="layoutHumidity" @bind-Data="dataHumidity" @ref="chartHumidity" />
-</MudContainer>
+</MudExpansionPanel>
 
 @code {
     [Parameter]
@@ -186,10 +186,13 @@
                         Y = y
                     });
             }
+
+            await UpdateAxisFormat();
+
         }
         catch (Exception)
         {
-            
+
             throw;
         }
         finally
@@ -221,37 +224,47 @@
         return str;
     }
 
-    private string FormatTheDate(object value)
+    private async Task UpdateAxisFormat()
     {
-        if (value != null)
+        var currentFormat = chartTemperature.Layout.XAxis.FirstOrDefault().TickFormat;
+        var latestFormat = GetDateFormat();
+
+        if (currentFormat == latestFormat)
+            return;
+
+        chartTemperature.Layout.XAxis.FirstOrDefault().TickFormat = latestFormat;
+        await chartTemperature.Update();
+
+        chartHumidity.Layout.XAxis.FirstOrDefault().TickFormat = latestFormat;
+        await chartHumidity.Update();
+    }
+
+    private string GetDateFormat()
+    {
+        string returnValue;
+
+        switch (SelectedTimePeriod)
         {
-            string returnValue;
-
-            switch (SelectedTimePeriod)
-            {
-                case ReadingTimePeriod.Day:
-                    returnValue = Convert.ToDateTime(value).ToString("HH:mm");
-                    break;
-                case ReadingTimePeriod.TwoDays:
-                case ReadingTimePeriod.ThreeDays:
-                case ReadingTimePeriod.Week:
-                    returnValue = Convert.ToDateTime(value).ToString("ddd");
-                    break;
-                case ReadingTimePeriod.TwoWeeks:
-                case ReadingTimePeriod.Month:
-                    returnValue = Convert.ToDateTime(value).ToString("dd");
-                    break;
-                case ReadingTimePeriod.AllTime:
-                case ReadingTimePeriod.Year:
-                default:
-                    returnValue = Convert.ToDateTime(value).ToString("MMM");
-                    break;
-            }
-
-            return returnValue;
+            case ReadingTimePeriod.Day:
+                returnValue = @"%H:%M";
+                break;
+            case ReadingTimePeriod.TwoDays:
+            case ReadingTimePeriod.ThreeDays:         
+            case ReadingTimePeriod.Week:
+                returnValue = @"%a %H:%M";
+                break;
+            case ReadingTimePeriod.TwoWeeks:
+            case ReadingTimePeriod.Month:
+                returnValue = @"%d %H:%M";
+                break;
+            case ReadingTimePeriod.AllTime:
+            case ReadingTimePeriod.Year:
+            default:
+                returnValue = @"%d %b %y";
+                break;
         }
 
-        return string.Empty;
+        return returnValue;
     }
 
     private void ToggleFilterVisibility()
@@ -277,10 +290,6 @@
 
         layoutTemperature = new Layout
             {
-                Title = new Title
-                {
-                    Text = "TEMPERATURE"
-                },
                 Legend = new List<Legend> { new Legend() { Orientation = Plotly.Blazor.LayoutLib.LegendLib.OrientationEnum.V, Y = -0.5m, X = 0.5m } },
                 ShowLegend = true,
                 PaperBgColor = Theme.PaletteDark.Surface.ToString(),
@@ -294,15 +303,33 @@
                     L = 35, 
                     T = 35, 
                     R = 0
+                }, 
+                XAxis = new List<XAxis>()
+                {
+                    new XAxis()
+                    {
+                        ShowGrid = true,
+                        GridDash = "dot",
+                        GridWidth = 0.01m,
+                        GridColor = Theme.PaletteDark.GrayDark.ToString(),
+                        TickFormat = GetDateFormat()
+                    }
+                },
+                YAxis = new List<YAxis>()
+                {
+                    new YAxis()
+                    {
+                        ShowGrid = true,
+                        GridDash = "dot",
+                        GridWidth = 0.01m,
+                        GridColor = Theme.PaletteDark.GrayDark.ToString(),
+                        TickSuffix = "°"
+                    }
                 }
             };
 
         layoutHumidity = new Layout
             {
-                Title = new Title
-                {
-                    Text = "HUMIDITY"
-                },
                 Legend = new List<Legend> { new Legend() { Orientation = Plotly.Blazor.LayoutLib.LegendLib.OrientationEnum.V, Y = -0.5m, X = 0.5m } },
                 ShowLegend = true,
                 PaperBgColor = Theme.PaletteDark.Surface.ToString(),
@@ -317,6 +344,28 @@
                     L = 35,
                     T = 35,
                     R = 0
+                },
+                XAxis = new List<XAxis>()
+                {
+                    new XAxis()
+                    {
+                        ShowGrid = true,
+                        GridDash = "dot",
+                        GridWidth = 0.01m,
+                        GridColor = Theme.PaletteDark.GrayDark.ToString(),
+                        TickFormat = GetDateFormat()
+                    }
+                },
+                YAxis = new List<YAxis>()
+                {
+                    new YAxis()
+                    {
+                        ShowGrid = true,
+                        GridDash = "dot",
+                        GridWidth = 0.01m,
+                        GridColor = Theme.PaletteDark.GrayDark.ToString(),
+                        TickSuffix = "%"
+                    }
                 }
             };
     }
