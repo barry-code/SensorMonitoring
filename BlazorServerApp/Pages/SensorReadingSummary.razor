@@ -5,7 +5,7 @@
 @inject NavigationManager NavigationManager;
 @inject SensorService MySensorService;
 
-<MudTable Items="@Readings" Loading="@IsLoading" Elevation="2" Breakpoint="Breakpoint.None">
+<MudTable Items="@Readings" T="SensorSummary" Loading="@IsLoading" Elevation="2" Breakpoint="Breakpoint.None" OnRowClick="RowClickEvent" RowClass="cursor-pointer">
     <ToolBarContent>
         <MudText Typo="Typo.h6" Color="MudBlazor.Color.Primary">Sensor Summary</MudText>
     </ToolBarContent>
@@ -20,23 +20,25 @@
             string connectionIconToUse = context.IsCommsLost ? Icons.Material.Filled.SensorsOff : Icons.Material.Filled.Sensors;
             string readingIconToUse = context.Sensor.Description.ToLower().Contains("humidity") ? Icons.Material.Filled.WaterDrop : Icons.Material.Filled.Thermostat;
         }
-        <MudTd DataLabel="Name">            
-            <MudButton EndIcon="@connectionIconToUse" IconColor="@colorToUse" OnClick="@(() => NavigateToSensorHistory(context.Sensor.Id))" FullWidth="false">@context.Sensor.Name</MudButton>
+        <MudTd DataLabel="Name" >            
+            <MudStack Row="true" AlignItems="AlignItems.Start">
+                <MudText Typo="Typo.body2">@context.Sensor.Name</MudText>
+                <MudIcon Size="Size.Small" Icon="@connectionIconToUse" Color="@colorToUse" />
+            </MudStack>            
         </MudTd>
 
         <MudTd DataLabel="Reading">
-            <MudStack Row="true">
-                <MudIcon Icon="@readingIconToUse" />
-                <MudText>@context.LastReadingDisplay</MudText>
-            </MudStack>
-            
+            <MudStack Row="true" AlignItems="AlignItems.Start">
+                <MudIcon Size="Size.Small" Icon="@readingIconToUse" />
+                <MudText Typo="Typo.body2" >@context.LastReadingDisplay</MudText>
+            </MudStack>            
         </MudTd>
 
         <MudTd DataLabel="Time" Class="d-none d-md-table-cell">@context.LastReadingTimeDisplay</MudTd>
     </RowTemplate>
 </MudTable>
 
-@code {
+    @code {
     private bool isFirstLoad;
     public bool IsLoading { get; set; }
     public ObservableCollection<SensorSummary> Readings { get; set; } = new ObservableCollection<SensorSummary>();
@@ -76,5 +78,15 @@
     private void NavigateToSensorHistory(int sensorId)
     {
         NavigationManager.NavigateTo($"/sensorReadingHistory/{sensorId}");
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<SensorSummary> tableRowClickEventArgs)
+    {
+        var sensor = tableRowClickEventArgs.Item as SensorSummary;
+
+        if (sensor is null)
+            return;
+
+        NavigationManager.NavigateTo($"/sensorReadingHistory/{sensor.Sensor.Id}");
     }
 }

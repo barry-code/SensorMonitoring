@@ -10,15 +10,7 @@
 
 <MudStack Row="true" Class="mt-3">
     <MudButton OnClick="ToggleFilterVisibility" StartIcon="@MudBlazor.Icons.Material.Filled.Filter" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Filter</MudButton>
-
-    @if (IsBusy)
-    {
-        <MudProgressCircular Indeterminate="true" />
-    }
-    else
-    {
-        <MudButton OnClick="RefreshSensorHistory" StartIcon="@MudBlazor.Icons.Material.Filled.Refresh" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Refresh</MudButton>
-    }
+    <MudButton OnClick="RefreshSensorHistory" StartIcon="@MudBlazor.Icons.Material.Filled.Refresh" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Refresh</MudButton>
 </MudStack>
 
 @if (!_collapseFilters)
@@ -42,11 +34,49 @@
 
 <MudExpansionPanel Text="TEMPERATURE (° Celcius)" Disabled="@(!HasTemperatureData)" IsExpanded="@HasTemperatureData" HideIcon="true" DisableGutters="true">
     <PlotlyChart @bind-Config="configTemperature" @bind-Layout="layoutTemperature" @bind-Data="dataTemperature" @ref="chartTemperature" />
+    @if (_tempSensorReadingAggregates.Count > 0)
+    {
+        <MudTable Class="mx-1 mt-3" T="SensorReadingAggregate" Items="@_tempSensorReadingAggregates" Dense="true" Elevation="3" Outlined=true Breakpoint="Breakpoint.None">
+            <HeaderContent>
+                <MudTh Style="font-size:12px;padding-left:4px;padding-right:0px;">Name</MudTh>
+                <MudTh Style="font-size:12px;padding-left:0px;padding-right:0px;">Min</MudTh>
+                <MudTh Style="font-size:12px;padding-left:0px;padding-right:0px;">Max</MudTh>
+                <MudTh Style="font-size:12px;padding-left:0px;padding-right:4px;">Avg</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd Style="font-size:12px;padding-left:4px;padding-right:0px;" DataLabel="Name">@context.SensorDisplayName</MudTd>
+                    <MudTd Style="font-size:12px;padding-left:0px;padding-right:0px;" DataLabel="Min">@context.Min</MudTd>
+                    <MudTd Style="font-size:12px;padding-left:0px;padding-right:0px;" DataLabel="Max">@context.Max</MudTd>
+                    <MudTd Style="font-size:12px;padding-left:0px;padding-right:4px;" DataLabel="Avg">@context.Avg</MudTd>
+                </RowTemplate>
+        </MudTable>    
+    }
 </MudExpansionPanel>
 
 <MudExpansionPanel Class="mb-3" Text="HUMIDITY (%)" Disabled="@(!HasHumidityData)" IsExpanded="@HasHumidityData" HideIcon="true" DisableGutters="true">
     <PlotlyChart @bind-Config="configHumidity" @bind-Layout="layoutHumidity" @bind-Data="dataHumidity" @ref="chartHumidity" />
+    @if (_humSensorReadingAggregates.Count > 0)
+    {
+        <MudTable Class="mx-1 mt-3" T="SensorReadingAggregate" Items="@_humSensorReadingAggregates" Dense="true" Elevation="3" Outlined=true Breakpoint="Breakpoint.None">
+            <HeaderContent>
+                <MudTh Style="font-size:12px;padding-left:4px;padding-right:0px;">Name</MudTh>
+                <MudTh Style="font-size:12px;padding-left:0px;padding-right:0px;">Min</MudTh>
+                <MudTh Style="font-size:12px;padding-left:0px;padding-right:0px;">Max</MudTh>
+                <MudTh Style="font-size:12px;padding-left:0px;padding-right:4px;">Avg</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd Style="font-size:12px;padding-left:4px;padding-right:0px;" DataLabel="Name">@context.SensorDisplayName</MudTd>
+                    <MudTd Style="font-size:12px;padding-left:0px;padding-right:0px;" DataLabel="Min">@context.Min</MudTd>
+                    <MudTd Style="font-size:12px;padding-left:0px;padding-right:0px;" DataLabel="Max">@context.Max</MudTd>
+                    <MudTd Style="font-size:12px;padding-left:0px;padding-right:4px;" DataLabel="Avg">@context.Avg</MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
 </MudExpansionPanel>
+
+<MudOverlay Visible="IsBusy" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
 
 @code {
     [Parameter]
@@ -68,6 +98,9 @@
     Config configHumidity = new Config();
     Layout layoutHumidity = new Layout();
     IList<ITrace> dataHumidity = new List<ITrace>();
+    public long ElapsedTime { get; set; }
+    List<SensorReadingAggregate> _tempSensorReadingAggregates = new();
+    List<SensorReadingAggregate> _humSensorReadingAggregates = new();
 
     public IEnumerable<ReadingTimePeriod> AvailableTimePeriods { get; set; } = new List<ReadingTimePeriod>() {
         ReadingTimePeriod.Day,
@@ -93,6 +126,8 @@
             HasTemperatureData = false;
             HasHumidityData = false;
             _sensorList.Clear();
+            _tempSensorReadingAggregates.Clear();
+            _humSensorReadingAggregates.Clear();
 
             var sensorsFound = await MySensorService.GetSensors();
 
@@ -145,6 +180,9 @@
             await chartTemperature.Clear();
             await chartHumidity.Clear();
 
+            _tempSensorReadingAggregates.Clear();
+            _humSensorReadingAggregates.Clear();
+
             if (!_sensorList.Any(s => s.Display))
                 return;
 
@@ -163,8 +201,23 @@
 
             foreach (var item in tempHistory)
             {
+                var min = Math.Round(item.Readings.Min(r => r.ReadingValue), 1);
+                var max = Math.Round(item.Readings.Max(r => r.ReadingValue), 1);
+                var avg = Math.Round(item.Readings.Average(r => r.ReadingValue), 1);
+
+                _tempSensorReadingAggregates.Add(new SensorReadingAggregate()
+                    {
+                        Min = $"{min}°C",
+                        Max = $"{max}°C",
+                        Avg = $"{avg}°C",
+                        SensorId = item.Sensor.Id,
+                        IsTemperatureType = true,
+                        SensorName = item.Sensor.Name
+                    });
+
                 List<object> x = item.Readings.Select(r => (object)r.DateTime).ToList();
                 List<object> y = item.Readings.Select(r => (object)r.ReadingValue).ToList();
+
                 await chartTemperature.AddTrace(new Scatter
                     {
                         Name = $"{item.Sensor.Name}",
@@ -176,8 +229,23 @@
 
             foreach (var item in humHistory)
             {
+                var min = Math.Round(item.Readings.Min(r => r.ReadingValue),1);
+                var max = Math.Round(item.Readings.Max(r => r.ReadingValue), 1);
+                var avg = Math.Round(item.Readings.Average(r => r.ReadingValue), 1);
+
+                _humSensorReadingAggregates.Add(new SensorReadingAggregate()
+                    {
+                        Min = $"{min}%",
+                        Max = $"{max}%",
+                        Avg = $"{avg}%",
+                        SensorId = item.Sensor.Id,
+                        IsTemperatureType = false,
+                        SensorName = item.Sensor.Name
+                    });
+
                 List<object> x = item.Readings.Select(r => (object)r.DateTime).ToList();
                 List<object> y = item.Readings.Select(r => (object)r.ReadingValue).ToList();
+
                 await chartHumidity.AddTrace(new Scatter
                     {
                         Name = $"{item.Sensor.Name}",
@@ -188,7 +256,6 @@
             }
 
             await UpdateAxisFormat();
-
         }
         catch (Exception)
         {
@@ -209,19 +276,6 @@
             return;
 
         sensor.Display = isChecked;
-    }
-
-    private string FormatAsValue(object value)
-    {
-        return (Math.Round((double)value),1).ToString();
-    }
-
-    private string FormatFloatValue(object value)
-    {
-        var v = (double)value;
-        var rounded = Math.Round(v, 1);
-        var str = rounded.ToString();
-        return str;
     }
 
     private async Task UpdateAxisFormat()
@@ -392,5 +446,26 @@
         public int SensorId { get; set; }
         public string SensorName { get; set; } = string.Empty;
         public bool Display { get; set; }
+    }
+
+    internal class SensorReadingAggregate
+    {
+        public int SensorId { get; set; }
+        public string SensorName { get; set; } = string.Empty;
+        public string SensorDisplayName => GetSensorLocationNameOnly(SensorName);
+        public string Min { get; set; } = string.Empty;
+        public string Max { get; set; } = string.Empty;
+        public string Avg { get; set; } = string.Empty;
+        public bool IsTemperatureType { get; set; }
+
+        private string GetSensorLocationNameOnly(string fullSensorName)
+        {
+            var parts = fullSensorName.Split(" ");
+
+            if (parts is null)
+                return fullSensorName;
+
+            return parts[0];
+        }
     }
 }
