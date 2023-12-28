@@ -1,6 +1,13 @@
 # SensorMonitoring
 
-![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/b4c06775-edb5-4b42-b825-47c1dda7a968)
+Solution consists of:
+- an API which is used for writing/reading sensor readings.
+- a blazor server app, used for displaying sensor readings data.
+- also included for reference, is the script running on arduino which is responsible for reading the sensor values and writing them to the api for storage.
+
+![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/936f0d5a-6ffa-49a8-94bd-dcdc3995a9f7)
+
+![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/26ebc481-b2c0-44f0-83a4-20d8193ce1e4)
 
 
 Notes when deploying to raspberry pi:
@@ -38,4 +45,6 @@ Also had firewall off on pc when testing, would need to ensure rule added for po
 Created a service to run it using service file which is stored in /etc/systemd/system/
 >systemctl status bcode.sensormonitoring.api.service
 
-
+Same process used for deploying and running the BlazorServerApp.
+>scp -r publish myUsername@myHostname:/myHomePath/MyApps/SensorMonitoring.BlazorServerApp
+>systemctl status bcode.sensormonitoring.blazorserverapp.service
