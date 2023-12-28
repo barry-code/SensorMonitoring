@@ -3,7 +3,7 @@
 Solution consists of:
 - an API which is used for writing/reading sensor readings.
 - a blazor server app, used for displaying sensor readings data.
-- also included for reference, is the script running on arduino which is responsible for reading the sensor values and writing them to the api for storage.
+- also included for reference, is the script running on arduino which is responsible for reading the physically connected temperature and humidity sensors, and writing said values to the api for storage.
 
 ![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/936f0d5a-6ffa-49a8-94bd-dcdc3995a9f7)
 
