@@ -47,4 +47,5 @@ Created a service to run it using service file which is stored in /etc/systemd/s
 
 Same process used for deploying and running the BlazorServerApp.
 >scp -r publish myUsername@myHostname:/myHomePath/MyApps/SensorMonitoring.BlazorServerApp
+
 >systemctl status bcode.sensormonitoring.blazorserverapp.service
