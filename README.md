@@ -1,15 +1,26 @@
 # SensorMonitoring
 
+## Solution Overview
 Solution consists of:
 - an API which is used for writing/reading sensor readings.
 - a blazor server app, used for displaying sensor readings data.
 - also included for reference, is the script running on arduino which is responsible for reading the physically connected temperature and humidity sensors, and writing said values to the api for storage.
 
+## Components
+Dotnet 6
+
+Mudblazor (used for design of blazor server app)
+[Mudblazor Github](https://github.com/MudBlazor/MudBlazor)
+
+Plotly.Blazor (used for charts in the blazor server app)
+[Plotly.Blazor Github](https://github.com/MudBlazor/MudBlazor)
+
+## Screenshots
 ![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/936f0d5a-6ffa-49a8-94bd-dcdc3995a9f7)
 
 ![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/26ebc481-b2c0-44f0-83a4-20d8193ce1e4)
 
-
+## Deployment Notes
 Notes when deploying to raspberry pi:
 
 [Microsoft Arm Deploy Tutorial](https://learn.microsoft.com/en-us/dotnet/iot/deployment#deploying-a-framework-dependent-app)
