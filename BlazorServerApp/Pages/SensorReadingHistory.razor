@@ -9,7 +9,7 @@
 <MudText Typo="Typo.h6" Color="MudBlazor.Color.Primary">Sensor Reading History</MudText>
 
 <MudStack Row="true" Class="mt-3">
-    <MudButton OnClick="ToggleFilterVisibility" StartIcon="@MudBlazor.Icons.Material.Filled.Filter" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Filter</MudButton>
+    <MudButton OnClick="ToggleFilterVisibility" StartIcon="@MudBlazor.Icons.Material.Filled.FilterAlt" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Filter</MudButton>
     <MudButton OnClick="RefreshSensorHistory" StartIcon="@MudBlazor.Icons.Material.Filled.Refresh" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Refresh</MudButton>
 </MudStack>
 
@@ -332,19 +332,29 @@
             {
                 Responsive = true, 
                 DisplayLogo = false, 
-                DisplayModeBar = Plotly.Blazor.ConfigLib.DisplayModeBarEnum.True       
+                DisplayModeBar = Plotly.Blazor.ConfigLib.DisplayModeBarEnum.True,
+                ModeBarButtonsToRemove = new List<string>()
+                {
+                    "select2d",
+                    "lasso2d"
+                }
             };
 
         configHumidity = new Config
             {
                 Responsive = true,
                 DisplayLogo = false,
-                DisplayModeBar = Plotly.Blazor.ConfigLib.DisplayModeBarEnum.True
+                DisplayModeBar = Plotly.Blazor.ConfigLib.DisplayModeBarEnum.True,
+                ModeBarButtonsToRemove = new List<string>()
+                {
+                    "select2d",
+                    "lasso2d"
+                }
             };
 
         layoutTemperature = new Layout
             {
-                DragMode = DragModeEnum.False,
+                DragMode = DragModeEnum.False,                
                 Legend = new List<Legend> { new Legend() { 
                     Orientation = Plotly.Blazor.LayoutLib.LegendLib.OrientationEnum.V, 
                     Y = -0.5m, 
@@ -359,9 +369,9 @@
                 },             
                 Margin = new Plotly.Blazor.LayoutLib.Margin(){
                     B = 50, 
-                    L = 40, 
-                    T = 5, 
-                    R = 5
+                    L = 50, 
+                    T = 40, 
+                    R = 10
                 }, 
                 XAxis = new List<XAxis>()
                 {
@@ -406,9 +416,9 @@
                 Margin = new Plotly.Blazor.LayoutLib.Margin()
                 {
                     B = 50,
-                    L = 40,
-                    T = 5,
-                    R = 5
+                    L = 50,
+                    T = 40,
+                    R = 10
                 },
                 XAxis = new List<XAxis>()
                 {
