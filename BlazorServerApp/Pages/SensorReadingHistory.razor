@@ -332,18 +332,19 @@
             {
                 Responsive = true, 
                 DisplayLogo = false, 
-                DisplayModeBar = Plotly.Blazor.ConfigLib.DisplayModeBarEnum.False
+                DisplayModeBar = Plotly.Blazor.ConfigLib.DisplayModeBarEnum.True       
             };
 
         configHumidity = new Config
             {
                 Responsive = true,
                 DisplayLogo = false,
-                DisplayModeBar = Plotly.Blazor.ConfigLib.DisplayModeBarEnum.False
+                DisplayModeBar = Plotly.Blazor.ConfigLib.DisplayModeBarEnum.True
             };
 
         layoutTemperature = new Layout
             {
+                DragMode = DragModeEnum.False,
                 Legend = new List<Legend> { new Legend() { 
                     Orientation = Plotly.Blazor.LayoutLib.LegendLib.OrientationEnum.V, 
                     Y = -0.5m, 
@@ -370,7 +371,8 @@
                         GridDash = "dot",
                         GridWidth = 0.01m,
                         GridColor = Theme.PaletteDark.GrayDark.ToString(),
-                        TickFormat = GetDateFormat()
+                        TickFormat = GetDateFormat(),
+                        HoverFormat = @"%H:%M %d-%b-%y"
                     }
                 },
                 YAxis = new List<YAxis>()
@@ -388,6 +390,7 @@
 
         layoutHumidity = new Layout
             {
+                DragMode = DragModeEnum.False,
                 Legend = new List<Legend> { new Legend() { 
                     Orientation = Plotly.Blazor.LayoutLib.LegendLib.OrientationEnum.V, 
                     Y = -0.5m,
@@ -415,7 +418,8 @@
                         GridDash = "dot",
                         GridWidth = 0.01m,
                         GridColor = Theme.PaletteDark.GrayDark.ToString(),
-                        TickFormat = GetDateFormat()
+                        TickFormat = GetDateFormat(),
+                        HoverFormat = @"%H:%M %d-%b-%y"
                     }
                 },
                 YAxis = new List<YAxis>()
