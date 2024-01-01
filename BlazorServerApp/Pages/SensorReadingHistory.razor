@@ -3,6 +3,7 @@
 
 @using Plotly.Blazor.LayoutLib
 @using Plotly.Blazor.Traces.ScatterLib
+@using System.Diagnostics
 
 @inject SensorService MySensorService
 
@@ -74,6 +75,11 @@
     }
 </MudExpansionPanel>
 
+@if (!string.IsNullOrWhiteSpace(_queryExecutionTime))
+{
+    <MudText Align="Align.Right" Class="mb-3" Style="font-size:10px;">@_queryExecutionTime</MudText>
+}
+
 <MudOverlay Visible="IsBusy" DarkBackground="true" Absolute="true">
     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
 </MudOverlay>
@@ -101,6 +107,7 @@
     public long ElapsedTime { get; set; }
     List<SensorReadingAggregate> _tempSensorReadingAggregates = new();
     List<SensorReadingAggregate> _humSensorReadingAggregates = new();
+    private string _queryExecutionTime = string.Empty;
 
     public IEnumerable<ReadingTimePeriod> AvailableTimePeriods { get; set; } = new List<ReadingTimePeriod>() {
         ReadingTimePeriod.Day,
@@ -172,6 +179,8 @@
         {
             IsBusy = true;
 
+            _queryExecutionTime = string.Empty;
+
             _collapseFilters = true;
 
             HasHumidityData = false;
@@ -187,6 +196,9 @@
                 return;
 
             var sensorsToCheck = _sensorList.Where(s => s.Display).Select(s => s.SensorId).ToList();
+
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
 
             var readings = await MySensorService.GetSensorReadingHistoryForSensors(sensorsToCheck, SelectedTimePeriod);
 
@@ -254,6 +266,9 @@
                         Y = y
                     });
             }
+
+            stopWatch.Stop();
+            _queryExecutionTime = $"Query Executed in {stopWatch.ElapsedMilliseconds}ms";
 
             await UpdateAxisFormat();
         }
