@@ -54,6 +54,9 @@ public class SensorContext : DbContext
 
         model.Entity<SensorReading>()            
             .HasKey(sr => sr.Id);
+
+        model.Entity<SensorReading>()
+            .HasIndex(sr => new { sr.SensorId, sr.DateTime });
     }
 
 }
