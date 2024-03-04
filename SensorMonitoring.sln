@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Arduino", "Arduino", "{2DA4
 		Arduino\arduino_sensorsReadAndWriteToApi.ino = Arduino\arduino_sensorsReadAndWriteToApi.ino
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{38AEC175-FBE1-4BB4-9B4A-7948A312C683}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{23086DFF-8CA8-4247-BE35-30C1B3D58CEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23086DFF-8CA8-4247-BE35-30C1B3D58CEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23086DFF-8CA8-4247-BE35-30C1B3D58CEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38AEC175-FBE1-4BB4-9B4A-7948A312C683}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38AEC175-FBE1-4BB4-9B4A-7948A312C683}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38AEC175-FBE1-4BB4-9B4A-7948A312C683}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38AEC175-FBE1-4BB4-9B4A-7948A312C683}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,6 +50,7 @@ Global
 		{8A264AF4-7C10-4273-8933-7ED27BB8CD84} = {948089B9-F483-428D-B712-E9E061F91C88}
 		{23086DFF-8CA8-4247-BE35-30C1B3D58CEE} = {948089B9-F483-428D-B712-E9E061F91C88}
 		{2DA4890F-31CA-4EB7-B3F6-DA8A7831ACF8} = {948089B9-F483-428D-B712-E9E061F91C88}
+		{38AEC175-FBE1-4BB4-9B4A-7948A312C683} = {948089B9-F483-428D-B712-E9E061F91C88}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5741152C-871C-4E3F-A623-19CF6206563C}

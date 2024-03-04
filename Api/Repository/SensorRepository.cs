@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SensorMonitoring.Shared.Errors;
 using SensorMonitoring.Shared.Events;
 using SensorMonitoring.Shared.Interfaces;
@@ -13,7 +14,7 @@ public class SensorRepository : ISensorRepository
     public event Action<Sensor> SensorUpdatedEvent;
     public event Action<List<SensorReading>> SensorReadingsAddedEvent;
 
-    public SensorRepository(IOptions<ApiOptions> options)
+    public SensorRepository(ApiOptions options)
     {
         _context = new SensorContext(options);
     }
@@ -62,13 +63,16 @@ public class SensorRepository : ISensorRepository
     public IEnumerable<SensorReading> GetAllSensorReadingsForSensor(int sensorId)
     {
         return _context.SensorReadings
+            .AsNoTracking()
             .Where(s => s.SensorId.Equals(sensorId))
             .ToArray();
     }
 
     public IEnumerable<Sensor> GetAllSensors()
     {
-        return _context.Sensors.ToArray();
+        return _context.Sensors
+            .AsNoTracking()
+            .ToArray();
     }
 
     public IEnumerable<SensorReading> GetLastNSensorReadingsForAllSensors(int count)
@@ -78,6 +82,7 @@ public class SensorRepository : ISensorRepository
         foreach (var sensor in _context.Sensors)
         {
             var thisSensorReading = _context.SensorReadings
+                .AsNoTracking()
                 .Where(s => s.SensorId == sensor.Id)
                 .OrderByDescending(sr => sr.DateTime)
                 .Take(count);
@@ -91,6 +96,7 @@ public class SensorRepository : ISensorRepository
     public IEnumerable<SensorReading> GetLastNSensorReadingsForSensor(int sensorId, int count)
     {
         return _context.SensorReadings
+            .AsNoTracking()
             .Where(s => s.SensorId == sensorId)
             .OrderByDescending(s => s.DateTime)
             .ToArray()
@@ -99,7 +105,9 @@ public class SensorRepository : ISensorRepository
 
     public Sensor GetSensorById(int sensorId)
     {
-        var sensor = _context.Sensors.FirstOrDefault(s => s.Id.Equals(sensorId));
+        var sensor = _context.Sensors
+            .AsNoTracking()
+            .FirstOrDefault(s => s.Id.Equals(sensorId));
 
         if (sensor is null)
         {
@@ -126,6 +134,7 @@ public class SensorRepository : ISensorRepository
     public IEnumerable<SensorReading> GetSensorReadingsForSensors(List<int> sensorIds, DateTimeOffset from, DateTimeOffset to)
     {
         var readings = _context.SensorReadings
+            .AsNoTracking()
             .Where(s => sensorIds.Contains(s.SensorId) && (s.DateTime >= from && s.DateTime <= to))
             .ToList();
 
@@ -148,7 +157,9 @@ public class SensorRepository : ISensorRepository
 
         foreach (var reading in readings)
         {
-            var sensor = _context.Sensors.FirstOrDefault(s => s.Id.Equals(reading.SensorId));
+            var sensor = _context.Sensors
+                .AsNoTracking()
+                .FirstOrDefault(s => s.Id.Equals(reading.SensorId));
 
             if (sensor is null)
             {
