@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SensorMonitoring.Api.Repository;
 using SensorMonitoring.Shared.Models;
 
@@ -7,14 +8,14 @@ namespace SensorMonitoring.Api;
 
 public class MyBenchmarkTesting
 {
-    private ApiOptions _options;
+    private IOptions<ApiOptions> _options;
 
     public MyBenchmarkTesting()
     {
-        _options = new ApiOptions()
+        _options = Options.Create(new ApiOptions()
         {
             SensorRepositoryConnection = "C:\\Users\\B\\AppData\\Local\\SensorMonitoring.db"
-        };
+        });
     }
 
     [Benchmark]

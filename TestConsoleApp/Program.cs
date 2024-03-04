@@ -4,11 +4,6 @@ using SensorMonitoring.Api;
 
 Console.WriteLine("Testing!");
 
-var options = new ApiOptions()
-{
-    SensorRepositoryConnection = "C:\\Users\\B\\AppData\\Local\\SensorMonitoring.db"
-};
-
 try
 {
     BenchmarkRunner.Run<MyBenchmarkTesting>();

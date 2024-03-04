@@ -16,9 +16,9 @@ public class SensorContext : DbContext
 
     public string DbPath { get; }
 
-    public SensorContext(ApiOptions options)
+    public SensorContext(IOptions<ApiOptions> options)
     {
-        DbPath = options.SensorRepositoryConnection;
+        DbPath = options.Value.SensorRepositoryConnection;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options) =>
