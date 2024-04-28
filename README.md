@@ -1,7 +1,7 @@
 # SensorMonitoring
 
 ## What?
-Sensor Monitoring API and Blazor website for logging and displaying temperature and humidity sensor data.
+Web API and Blazor website for logging and displaying temperature and humidity sensor data.
 
 ## Why?
 Developed for purpose of monitoring and storing data from temperature and humidity sensors in the house, and allowing display live data as well as trend historical data over time. Main purpose was to track humidty in attic over time, and allow to gauge efforts to reduce humidty and how successful it was.
@@ -22,10 +22,10 @@ Mudblazor (used for design of blazor server app)
 [Mudblazor Github](https://github.com/MudBlazor/MudBlazor)
 
 Plotly.Blazor (used for charts in the blazor server app)
-[Plotly.Blazor Github]([https://github.com/MudBlazor/MudBlazor](https://github.com/LayTec-AG/Plotly.Blazor)
+[Plotly.Blazor Github](https://github.com/LayTec-AG/Plotly.Blazor)
 
 ## Deployment Notes
-Notes when deploying to raspberry pi:
+Notes when deploying api to be hosted on a raspberry pi:
 
 [Microsoft Arm Deploy Tutorial](https://learn.microsoft.com/en-us/dotnet/iot/deployment#deploying-a-framework-dependent-app)
 
