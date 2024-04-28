@@ -4,7 +4,7 @@
 Sensor Monitoring API and Blazor website for logging and displaying temperature and humidity sensor data.
 
 ## Why?
-Developed for purpose of monitoring and storing data from temperature and humidity sensors in the house, and allowing display and trends of the data over time.
+Developed for purpose of monitoring and storing data from temperature and humidity sensors in the house, and allowing display and trends of the data over time. Main purpose was to track humidty in attic over time, and allow to gauge efforts to reduce humidty and how successful it was.
 
 ## Screenshots
 ![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/936f0d5a-6ffa-49a8-94bd-dcdc3995a9f7)
