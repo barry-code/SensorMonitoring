@@ -4,6 +4,8 @@
 name: sensormonitoring build and test
 
 on:
+  workflow_dispatch:
+    # This event allows manual triggering
   push:
     branches: [ "master" ]
     paths:
