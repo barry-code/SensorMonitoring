@@ -16,13 +16,10 @@ public class SensorContext : DbContext
 
     public string DbPath { get; }
 
-    public SensorContext(IOptions<ApiOptions> options)
-    {
-        DbPath = options.Value.SensorRepositoryConnection;
+    public SensorContext(DbContextOptions<SensorContext> options) 
+        : base(options)
+    {        
     }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder options) =>
-        options.UseSqlite($"DataSource={DbPath}");
 
     protected override void OnModelCreating(ModelBuilder model)
     {

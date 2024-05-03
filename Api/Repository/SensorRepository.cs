@@ -14,9 +14,9 @@ public class SensorRepository : ISensorRepository
     public event Action<Sensor> SensorUpdatedEvent;
     public event Action<List<SensorReading>> SensorReadingsAddedEvent;
 
-    public SensorRepository(IOptions<ApiOptions> options)
+    public SensorRepository(DbContextOptions<SensorContext> contextOptions)
     {
-        _context = new SensorContext(options);
+        _context = new SensorContext(contextOptions);
     }
 
     public void AddSensor(Sensor sensor)

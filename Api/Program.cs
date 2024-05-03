@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using SensorMonitoring.Api;
 using SensorMonitoring.Api.Repository;
 using SensorMonitoring.Shared.Interfaces;
@@ -11,10 +14,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<ISensorRepository, SensorRepository>();
-
 builder.Services.Configure<ApiOptions>(
     builder.Configuration.GetSection(nameof(ApiOptions).ToString()));
+
+builder.Services.AddDbContext<SensorContext>((serviceProvider, options) =>
+{
+    var apiOptions = serviceProvider.GetRequiredService<IOptions<ApiOptions>>().Value;
+    options.UseSqlite(apiOptions.SensorRepositoryConnection);
+});
+
+builder.Services.AddScoped<ISensorRepository, SensorRepository>();
 
 var app = builder.Build();
 

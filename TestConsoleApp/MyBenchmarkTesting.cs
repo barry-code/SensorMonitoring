@@ -8,14 +8,18 @@ namespace SensorMonitoring.Api;
 
 public class MyBenchmarkTesting
 {
-    private IOptions<ApiOptions> _options;
+    private IOptions<ApiOptions> _apiOptions;
+    private DbContextOptionsBuilder<SensorContext> _contextBuilder;
 
     public MyBenchmarkTesting()
     {
-        _options = Options.Create(new ApiOptions()
+        _apiOptions = Options.Create(new ApiOptions()
         {
-            SensorRepositoryConnection = "C:\\Users\\B\\AppData\\Local\\SensorMonitoring.db"
+            SensorRepositoryConnection = "DataSource=C:\\Users\\B\\AppData\\Local\\SensorMonitoring.db"
         });
+
+        _contextBuilder = new DbContextOptionsBuilder<SensorContext>();
+        _contextBuilder.UseSqlite(_apiOptions.Value.SensorRepositoryConnection);
     }
 
     [Benchmark]
@@ -25,7 +29,7 @@ public class MyBenchmarkTesting
         DateTimeOffset from = DateTime.MinValue;
         DateTimeOffset to = DateTime.MaxValue;
 
-        using (var context = new SensorContext(_options))
+        using (var context = new SensorContext(_contextBuilder.Options))
         {
             var readings = context.SensorReadings
                 .Where(s => sensorIds.Contains(s.SensorId) && (s.DateTime >= from && s.DateTime <= to))
@@ -42,7 +46,7 @@ public class MyBenchmarkTesting
         DateTimeOffset from = DateTime.MinValue;
         DateTimeOffset to = DateTime.MaxValue;
 
-        using (var context = new SensorContext(_options))
+        using (var context = new SensorContext(_contextBuilder.Options))
         {
             var readings = context.SensorReadings
                 .AsNoTracking()

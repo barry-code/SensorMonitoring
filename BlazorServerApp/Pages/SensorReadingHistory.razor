@@ -208,11 +208,14 @@
             var tempHistory = readings.Where(s => s.SensorType == SensorType.Temperature).ToList();
             var humHistory = readings.Where(s => s.SensorType == SensorType.Humidity).ToList();
 
-            HasTemperatureData = tempHistory.Count > 0;
-            HasHumidityData = humHistory.Count > 0;
+            HasTemperatureData = tempHistory.Count > 0 && tempHistory.Any(t => t.Readings.Count > 0);
+            HasHumidityData = humHistory.Count > 0 && humHistory.Any(t => t.Readings.Count > 0);
 
             foreach (var item in tempHistory)
             {
+                if (item.Readings.Count == 0)
+                    continue;
+
                 var min = Math.Round(item.Readings.Min(r => r.ReadingValue), 1);
                 var max = Math.Round(item.Readings.Max(r => r.ReadingValue), 1);
                 var avg = Math.Round(item.Readings.Average(r => r.ReadingValue), 1);
@@ -238,10 +241,13 @@
                         Y = y
                     });
             }
-
+            
             foreach (var item in humHistory)
             {
-                var min = Math.Round(item.Readings.Min(r => r.ReadingValue),1);
+                if (item.Readings.Count == 0)
+                    continue;
+
+                var min = Math.Round(item.Readings.Min(r => r.ReadingValue), 1);
                 var max = Math.Round(item.Readings.Max(r => r.ReadingValue), 1);
                 var avg = Math.Round(item.Readings.Average(r => r.ReadingValue), 1);
 
