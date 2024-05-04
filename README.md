@@ -13,6 +13,10 @@ Developed for purpose of monitoring and storing data from temperature and humidi
 
 ![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/26ebc481-b2c0-44f0-83a4-20d8193ce1e4)
 
+![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/2befc1b1-a848-4a80-ab9c-55686cf4b710)
+
+
+
 ## Solution Overview
 Solution consists of:
 - an API which is used for writing/reading sensor readings, storing data in sqlite DB.
