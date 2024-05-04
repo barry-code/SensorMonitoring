@@ -23,7 +23,7 @@ env:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -31,14 +31,16 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Display current directory
+      run: pwd
     - name: List contents of current directory
       run: ls
     - name: Change directory to test project
-      run: cd tests/ApiTests
+      run: cd ..\tests\ApiTests
     - name: Restore dependencies for test project
       run: dotnet restore
     - name: Change directory to main solution
-      run: cd ../..
+      run: cd ../../src
     - name: Restore dependencies for main solution
       run: dotnet restore
     - name: Build main solution
