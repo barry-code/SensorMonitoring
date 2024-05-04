@@ -31,6 +31,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: List contents of current directory
+      run: ls
     - name: Change directory to test project
       run: cd tests/ApiTests
     - name: Restore dependencies for test project
