@@ -1,5 +1,7 @@
 # SensorMonitoring
 
+[![SensorMonitoring Build and Tests](https://github.com/barry-code/SensorMonitoring/actions/workflows/dotnet.yml/badge.svg?branch=master)](https://github.com/barry-code/SensorMonitoring/actions/workflows/dotnet.yml)
+
 ## What?
 Web API and Blazor website for logging and displaying temperature and humidity sensor data.
 
@@ -10,6 +12,10 @@ Developed for purpose of monitoring and storing data from temperature and humidi
 ![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/936f0d5a-6ffa-49a8-94bd-dcdc3995a9f7)
 
 ![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/26ebc481-b2c0-44f0-83a4-20d8193ce1e4)
+
+![image](https://github.com/barry-code/SensorMonitoring/assets/60239072/2befc1b1-a848-4a80-ab9c-55686cf4b710)
+
+
 
 ## Solution Overview
 Solution consists of:
