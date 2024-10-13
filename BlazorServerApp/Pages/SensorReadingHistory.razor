@@ -495,12 +495,7 @@
 
         private string GetSensorLocationNameOnly(string fullSensorName)
         {
-            var parts = fullSensorName.Split(" ");
-
-            if (parts is null)
-                return fullSensorName;
-
-            return parts[0];
+            return fullSensorName.Replace("Temp","").Replace("Humidity","");
         }
     }
 }
