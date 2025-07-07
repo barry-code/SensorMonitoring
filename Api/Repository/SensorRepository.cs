@@ -131,14 +131,26 @@ public class SensorRepository : ISensorRepository
         SensorUpdatedEvent?.Invoke(sensor);
     }
 
-    public IEnumerable<SensorReading> GetSensorReadingsForSensors(List<int> sensorIds, DateTimeOffset from, DateTimeOffset to)
+    public IEnumerable<SensorReading> GetSensorReadingsForSensors(List<int> sensorIds, DateTimeOffset from, DateTimeOffset to, bool limitToMinMaxPerDay = false)
     {
-        var readings = _context.SensorReadings
+        var query = _context.SensorReadings
             .AsNoTracking()
-            .Where(s => sensorIds.Contains(s.SensorId) && (s.DateTime >= from && s.DateTime <= to))
-            .ToList();
+            .Where(s => sensorIds.Contains(s.SensorId) && (s.DateTime >= from && s.DateTime <= to));
 
-        return readings ?? new List<SensorReading>();
+        if (!limitToMinMaxPerDay)
+        {
+            return query.ToList();
+        }
+
+        var grouped = query
+            .GroupBy(r => new { r.SensorId, Day = r.DateTime.Date })
+            .SelectMany(g =>
+                g.OrderBy(r => r.Value).Take(1)
+                .Concat(
+                    g.OrderByDescending(r => r.Value).Take(1))
+                );
+
+        return grouped.ToList();
     }
 
     private void SaveSensorReadings(List<SensorReading> readings)

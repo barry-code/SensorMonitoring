@@ -109,15 +109,7 @@
     List<SensorReadingAggregate> _humSensorReadingAggregates = new();
     private string _queryExecutionTime = string.Empty;
 
-    public IEnumerable<ReadingTimePeriod> AvailableTimePeriods { get; set; } = new List<ReadingTimePeriod>() {
-        ReadingTimePeriod.Day,
-        ReadingTimePeriod.TwoDays,
-        ReadingTimePeriod.ThreeDays,
-        ReadingTimePeriod.Week,
-        ReadingTimePeriod.TwoWeeks,
-        ReadingTimePeriod.Month,
-        ReadingTimePeriod.Year,
-        ReadingTimePeriod.AllTime };
+    public IEnumerable<ReadingTimePeriod> AvailableTimePeriods { get; set; } = Enum.GetValues(typeof(ReadingTimePeriod)).Cast<ReadingTimePeriod>();
 
     public ReadingTimePeriod SelectedTimePeriod { get; set; } = ReadingTimePeriod.Day;
     private string timePeriod = ReadingTimePeriod.Day.ToString();

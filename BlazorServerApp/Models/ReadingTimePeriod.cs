@@ -7,7 +7,11 @@ public enum ReadingTimePeriod
     ThreeDays,
     Week,
     TwoWeeks,
+    ThreeWeeks,
     Month,
+    TwoMonths,
+    ThreeMonths,
+    SixMonths,
     Year,
     AllTime
 }

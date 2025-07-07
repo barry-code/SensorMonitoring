@@ -143,9 +143,11 @@ public class SensorService
         List<SensorHistory> results = new();
         DateTimeOffset startTime;
         DateTimeOffset endTime = DateTimeOffset.Now;
+        bool limitToMinMaxPerDay = (int)timePeriod >= (int)ReadingTimePeriod.TwoWeeks;
         switch (timePeriod)
         {
             case ReadingTimePeriod.Day:
+            default:
                 startTime = DateTimeOffset.Now.AddDays(-1);
                 break;
             case ReadingTimePeriod.TwoDays:
@@ -160,21 +162,32 @@ public class SensorService
             case ReadingTimePeriod.TwoWeeks:
                 startTime = DateTimeOffset.Now.AddDays(-14);
                 break;
+            case ReadingTimePeriod.ThreeWeeks:
+                startTime = DateTimeOffset.Now.AddDays(-21);
+                break;
             case ReadingTimePeriod.Month:
                 startTime = DateTimeOffset.Now.AddMonths(-1);
+                break;
+            case ReadingTimePeriod.TwoMonths:
+                startTime = DateTimeOffset.Now.AddMonths(-2);
+                break;
+            case ReadingTimePeriod.ThreeMonths:
+                startTime = DateTimeOffset.Now.AddMonths(-3);
+                break;
+            case ReadingTimePeriod.SixMonths:
+                startTime = DateTimeOffset.Now.AddMonths(-6);
                 break;
             case ReadingTimePeriod.Year:
                 startTime = DateTimeOffset.Now.AddYears(-1);
                 break;
             case ReadingTimePeriod.AllTime:
-            default:
                 startTime = DateTimeOffset.MinValue;
                 break;
         }
 
         using (var client = new HttpClient())
         {
-            var response = await client.PostAsJsonAsync($"{baseUri}/GetSensorReadingsForSensors/{UrlEncode(startTime)}/{UrlEncode(endTime)}", sensorIds);
+            var response = await client.PostAsJsonAsync($"{baseUri}/GetSensorReadingsForSensors/{UrlEncode(startTime)}/{UrlEncode(endTime)}/{limitToMinMaxPerDay}", sensorIds);
 
             if (response.IsSuccessStatusCode)
             {

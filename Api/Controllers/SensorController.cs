@@ -72,11 +72,11 @@ public class SensorController : ControllerBase
         return Ok(readings);
     }
 
-    [Route("GetSensorReadingsForSensors/{from}/{to}")]
+    [Route("GetSensorReadingsForSensors/{from}/{to}/{limitToMinMaxPerDay}")]
     [HttpPost()]
-    public IActionResult GetSensorReadingsForSensors([FromBody] List<int> sensorIds, [FromRoute] DateTimeOffset from, [FromRoute] DateTimeOffset to)
+    public IActionResult GetSensorReadingsForSensors([FromBody] List<int> sensorIds, [FromRoute] DateTimeOffset from, [FromRoute] DateTimeOffset to, [FromRoute] bool limitToMinMaxPerDay)
     {
-        var readings = _sensorRepository.GetSensorReadingsForSensors(sensorIds, from, to);
+        var readings = _sensorRepository.GetSensorReadingsForSensors(sensorIds, from, to, limitToMinMaxPerDay);
 
         return Ok(readings);
     }
