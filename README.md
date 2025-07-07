@@ -34,6 +34,7 @@ Plotly.Blazor (used for charts in the blazor server app)
 [Plotly.Blazor Github](https://github.com/LayTec-AG/Plotly.Blazor)
 
 ## Deployment Notes
+
 Notes when deploying api to be hosted on a raspberry pi:
 
 [Microsoft Arm Deploy Tutorial](https://learn.microsoft.com/en-us/dotnet/iot/deployment#deploying-a-framework-dependent-app)
@@ -73,3 +74,8 @@ Same process used for deploying and running the BlazorServerApp.
 >scp -r publish myUsername@myHostname:/myHomePath/MyApps/SensorMonitoring.BlazorServerApp
 
 >systemctl status bcode.sensormonitoring.blazorserverapp.service
+
+### Deployment Script
+Once the solution is deployed, there is a script which can be run whenever updates made to api or website, which will look after building and publishing them.
+The Target parameter, can be All, Api or Blazor.
+>.\deploy_script.ps1 -Target All
