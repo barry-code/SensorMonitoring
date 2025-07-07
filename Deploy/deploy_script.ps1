@@ -1,6 +1,9 @@
 # Deploy Script
-# Run this script to deploy the api/blazorSite to the raspberry pi.
+#
+# Run this script after the solution is deployed, if any updates are made, to deploy the updated api/blazorSite to the raspberry pi.
 # Note: this script assumes Putty is installed, and Putty path variable set, as there are two exes used by putty (plink.exe + pscp.exe) which are needed here.
+#
+# TODO: amend script so that it can be used also for initial deployment, where it will create daemons, migrations etc.
 
 param (
     [string]$Target = "all"  # Options: api, blazor, all

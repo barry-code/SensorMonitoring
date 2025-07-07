@@ -142,13 +142,14 @@ public class SensorRepository : ISensorRepository
             return query.ToList();
         }
 
-        var grouped = query
+        var data = query.ToList();
+
+        var grouped = data
             .GroupBy(r => new { r.SensorId, Day = r.DateTime.Date })
             .SelectMany(g =>
                 g.OrderBy(r => r.Value).Take(1)
-                .Concat(
-                    g.OrderByDescending(r => r.Value).Take(1))
-                );
+                    .Concat(
+                        g.OrderByDescending(r => r.Value).Take(1)));
 
         return grouped.ToList();
     }
