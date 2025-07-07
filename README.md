@@ -2,10 +2,10 @@
 
 [![SensorMonitoring Build and Tests](https://github.com/barry-code/SensorMonitoring/actions/workflows/dotnet.yml/badge.svg?branch=master)](https://github.com/barry-code/SensorMonitoring/actions/workflows/dotnet.yml)
 
-## What?
+## What
 Web API and Blazor website for logging and displaying temperature and humidity sensor data.
 
-## Why?
+## Why
 Developed for purpose of monitoring and storing data from temperature and humidity sensors in the house, and allowing display live data as well as trend historical data over time. Main purpose was to track humidty in attic over time, and allow to gauge efforts to reduce humidty and how successful it was.
 
 ## Screenshots
