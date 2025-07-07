@@ -22,7 +22,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deploy", "Deploy", "{532EBF6C-6058-48B7-A6E6-16F7DF5DDEF1}"
 	ProjectSection(SolutionItems) = preProject
 		Deploy\deploy_api.ps1 = Deploy\deploy_api.ps1
-		Deploy\deploy_blazorWebSite.ps1 = Deploy\deploy_blazorWebSite.ps1
 	EndProjectSection
 EndProject
 Global
