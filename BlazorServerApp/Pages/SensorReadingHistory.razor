@@ -222,18 +222,20 @@
                         SensorName = item.Sensor.Name
                     });
 
-                List<object> x = item.Readings.Select(r => (object)r.DateTime).ToList();
-                List<object> y = item.Readings.Select(r => (object)r.ReadingValue).ToList();
+                var orderedList = item.Readings.OrderBy(x => x.DateTime).ToList();
+
+                List<object> x = orderedList.Select(r => (object)r.DateTime).ToList();
+                List<object> y = orderedList.Select(r => (object)r.ReadingValue).ToList();
 
                 await chartTemperature.AddTrace(new Scatter
-                    {
-                        Name = $"{item.Sensor.Name}",
-                        Mode = ModeFlag.Lines | ModeFlag.Markers,
-                        X = x,
-                        Y = y
-                    });
+                {
+                    Name = $"{item.Sensor.Name}",
+                    Mode = ModeFlag.Lines | ModeFlag.Markers,
+                    X = x,
+                    Y = y
+                });
             }
-            
+
             foreach (var item in humHistory)
             {
                 if (item.Readings.Count == 0)
@@ -244,25 +246,27 @@
                 var avg = Math.Round(item.Readings.Average(r => r.ReadingValue), 1);
 
                 _humSensorReadingAggregates.Add(new SensorReadingAggregate()
-                    {
-                        Min = $"{min}%",
-                        Max = $"{max}%",
-                        Avg = $"{avg}%",
-                        SensorId = item.Sensor.Id,
-                        IsTemperatureType = false,
-                        SensorName = item.Sensor.Name
-                    });
+                {
+                    Min = $"{min}%",
+                    Max = $"{max}%",
+                    Avg = $"{avg}%",
+                    SensorId = item.Sensor.Id,
+                    IsTemperatureType = false,
+                    SensorName = item.Sensor.Name
+                });
 
-                List<object> x = item.Readings.Select(r => (object)r.DateTime).ToList();
-                List<object> y = item.Readings.Select(r => (object)r.ReadingValue).ToList();
+                var orderedList = item.Readings.OrderBy(x => x.DateTime).ToList();
+
+                List<object> x = orderedList.Select(r => (object)r.DateTime).ToList();
+                List<object> y = orderedList.Select(r => (object)r.ReadingValue).ToList();
 
                 await chartHumidity.AddTrace(new Scatter
-                    {
-                        Name = $"{item.Sensor.Name}",
-                        Mode = ModeFlag.Lines | ModeFlag.Markers,
-                        X = x,
-                        Y = y
-                    });
+                {
+                    Name = $"{item.Sensor.Name}",
+                    Mode = ModeFlag.Lines | ModeFlag.Markers,
+                    X = x,
+                    Y = y
+                });
             }
 
             stopWatch.Stop();
